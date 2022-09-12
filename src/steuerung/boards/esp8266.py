@@ -3,12 +3,12 @@ from machine import SoftI2C, Pin, reset, SoftSPI
 from libraries import HX711
 from libraries import BMP180  # druck und t sensor
 from libraries import DS1307
-from libraries import SSD1306_I2C
+f#rom libraries import SSD1306_I2C
 from dht import DHT11
 import uasyncio as asyncio
 import utime
 import network
-from steuerung.methoden import steuermethoden, steuersetup, oledanzeige
+from steuerung.methoden import Datenlesen, Steuersetup, Oledanzeige
 
 class ESP8266(Board):
     pins = {"D0": 16, "D1": 5, "D2": 4, "D3": 0, "D4": 2,

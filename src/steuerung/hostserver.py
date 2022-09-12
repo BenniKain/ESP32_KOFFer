@@ -6,7 +6,7 @@ MIT license
 import tinyweb
 
 # Create web server application
-hostserver = tinyweb.webserver()
+app = tinyweb.webserver()
 
 # Index page
 @app.route('/')
@@ -45,7 +45,7 @@ def shutdown():
 
 if __name__ == '__main__':
     run()
-    # To test your server:
+    # To test your app:
     # - Terminal:
     #   $ curl http://localhost:8081
     #   or

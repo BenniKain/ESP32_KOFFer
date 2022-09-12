@@ -16,17 +16,46 @@ class Board():
 
     def __init__(self) -> None:
         pass
+    
+    @property
+    def get_STA_IP(self):
+        if network.WLAN(network.STA_IF).active():
+            STA_IP = network.WLAN(network.STA_IF).ifconfig()[0]  # ip ist verbundene sta
+        else:
+            STA_IP ="--"
 
-    def get_IP(self):
-        essid = network.WLAN(network.STA_IF).config("essid")
-        if essid == "Emi-Koffer":
-            ip = network.WLAN(network.STA_IF).ifconfig()[
-                0]  # ip ist verbundene sta
-        elif essid != "Emi-Koffer":
-            ip = network.WLAN(network.AP_IF).ifconfig()[
-                0]  # ip ist accesspoint
-        self.datenDict.update({"ip": ip})
-        return ip
+        self.datenDict.update({"STA_IP": STA_IP})
+        return STA_IP
+
+    @property
+    def get_STA_Name (self):
+        if network.WLAN(network.STA_IF).active():
+            STA_Name = network.WLAN(network.STA_IF).config("essid")
+        else:
+            STA_Name = "--"
+
+        self.datenDict.update({"STA_Name": STA_Name})
+        return STA_Name
+        
+    
+    @property
+    def get_AP_IP(self):
+        if network.WLAN(network.AP_IF).active():
+            AP_IP = network.WLAN(network.AP_IF).ifconfig()[0]  # ip ist accesspoint
+        else:
+            AP_IP = "--"    
+        self.datenDict.update({"AP_IP": AP_IP})
+        return AP_IP
+
+    @property
+    def get_AP_Name(self):
+        if network.WLAN(network.AP_IF).active():
+            AP_Name = network.WLAN(network.AP_IF).config("essid")
+        else:
+            AP_Name = "--"
+
+        self.datenDict.update({"AP_Name": AP_Name})
+        return AP_Name
 
     def get_espID(self):
         import esp
@@ -34,9 +63,6 @@ class Board():
         self.datenDict.update({"espID": espID})
         print("ID des ESP's: ", espID)
         return espID
-
-    def update_Kofferdict(self, dataDict):
-        self.kofferDict.update({dataDict["espID"]: dataDict})
 
     def set_ds1306Time(self):
         try:
@@ -66,20 +92,21 @@ class Board():
         print("Tare")
         self.hx711.tare()
 
-    async def readData(self):
+    async def readDHT(self):
         while True:
-            try:
-                temp, hum = Datenlesen.read_DHT_data(self.dht11)
-                self.datenDict.update({"temp": temp, "hum": hum})
+            temp, hum = Datenlesen.read_DHT_data(self.dht11)    
+            self.datenDict.update({"temp": temp, "hum": hum})
+            print("DHT-Daten upgedated: ")
+            await asyncio.sleep(5)
+            
+    async def readBMP(self):
+        while True:
                 if self.bmpYN:
                     tBMP, press, alt = Datenlesen.read_BMP_Data(self.bmp180)
-                    self.datenDict.update(
-                        {"tBMP": tBMP, "alt": alt, "press": press})
-            except Exception as e:
-                print("Fehler bei ReadData Methode: ", e)
-                #raise e
-            finally:
-                print("Daten upgedated: ", self.datenDict)
+                    self.datenDict.update({"tBMP": tBMP, "alt": alt, "press": press})
+                    print("BMP-Daten upgedated")
+                else:
+                    print("BMP-Daten nicht upgedated")
                 await asyncio.sleep(5)
 
     async def updateScreen(self):
