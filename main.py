@@ -1,5 +1,3 @@
-import koffer
+from  src.koffer import App as Koffer
 
-k = koffer.App()
-
-k.run()
+k = Koffer()

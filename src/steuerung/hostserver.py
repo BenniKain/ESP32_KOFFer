@@ -3,7 +3,8 @@
 MIT license
 (C) Konstantin Belyalov 2017-2018
 """
-import tinyweb
+import src.libraries.tinyweb as tinyweb
+from src.steuerung.methoden import HTML_response
 
 # Create web server application
 app = tinyweb.webserver()
@@ -13,8 +14,12 @@ app = tinyweb.webserver()
 async def index(request, response):
     # Start HTTP response with content-type text/html
     await response.start_html()
+    #resp = '<html><body><h1>Hello, world! (<a href="/table">table</a>)</h1></html>\n'
+    h = HTML_response("src/html_css/base.html")
+    table = h.build_table("Anzeige")
+    resp = h.get_kwargs(table=table,command="Kommand")
     # Send actual HTML page
-    await response.send('<html><body><h1>Hello, world! (<a href="/table">table</a>)</h1></html>\n')
+    await response.send(resp)
 
 # HTTP redirection
 @app.route('/redirect')
@@ -36,9 +41,8 @@ async def table(request, response):
     await response.send('</table>'
                         '</html>')
 
-
-async def run():
-    app.run(host='0.0.0.0', port=8081)
+async def run(host = '0.0.0.0'):
+    app.run(host= host, port=8081)
 
 def shutdown():
     app.shutdown()

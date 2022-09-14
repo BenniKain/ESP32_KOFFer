@@ -1,10 +1,12 @@
 from time import sleep
 import utime
+import uasyncio as asyncio
+
 class Steuersetup():
 
     def sdcard(self):
         pass
-        """
+   
         #sd card slot if needed not planned
         #inits SD Card holder
         #https://github.com/micropython/micropython/blob/a1bc32d8a8fbb09bc04c2ca07b10475f7ddde8c3/drivers/sdcard/sdcard.py    
@@ -16,7 +18,7 @@ class Steuersetup():
         os.mount(vfs, '/sd')
         os.chdir('sd')
         print('SD Card contains:{}'.format(os.listdir()))
-        """
+        
 
     def pumpeANAUS(cls, Pin, pumpenrelay):
         print("value of the InterruptPin: ", Pin.value())
@@ -41,6 +43,17 @@ class Steuersetup():
         except:
             pass
 
+    @classmethod
+    async def showIP(self):
+        import network
+        ap = network.WLAN(network.AP_IF)
+        sta = network.WLAN(network.STA_IF)
+        while True:
+            print("Accespoint IP {} \t NAme: {}".format(
+                ap.ifconfig()[0], ap.config("essid")))
+            print("Stationpint IP {} \t NAme: {}".format(
+                sta.ifconfig()[0], sta.config("essid")))
+            await asyncio.sleep(5)
 
 class Oledanzeige():
     def showWaage(self, oled, hx711):
@@ -78,8 +91,10 @@ class Oledanzeige():
         print("anzeige: {}".format(screenfeld))
         return screenfeld
 
+
 class Datenlesen ():
-    def read_DHT_data(self, dht11):
+    @classmethod
+    def read_DHT_data(cls,dht11):
         try:
             dht11.measure()
             temp = str(dht11.temperature())
@@ -91,17 +106,16 @@ class Datenlesen ():
         finally:
             return temp, hum
 
-    def read_BMP_Data(self,bmp180):
+    @classmethod
+    def read_BMP_Data(cls,bmp180):
         try:
-            tBMP    =   str(round(bmp180.temperature,1))
-            press   =   str(int(bmp180.pressure /100))   #in Pa, mit /100 in hPa
-            alt     =   str(round(bmp180.altitude /100,0))
+            tBMP = str(round(bmp180.temperature, 1))
+            press = str(int(bmp180.pressure / 100))  # in Pa, mit /100 in hPa
+            alt = str(round(bmp180.altitude / 100, 0))
+            return tBMP, press, alt
         except Exception as e:
-            tBMP,press,alt = "--","--","--"
-            print(e)
-        finally:
-            return tBMP,press,alt
-    
+            return e
+ 
     def connect_Wifi(cls, ssid, password) -> bool:
         try:
             import network
@@ -113,22 +127,66 @@ class Datenlesen ():
                 sleep(0.5)
         except:
             return False
-            
+
     def save_new_Wifi(self, **args):
         # wird nicht wahr trotz handy wlan testeingabe
         if self.connect_Wifi(args["ssid"], args["password"]):
             import json
             config_file = "/networks.json"
-            with open(config_file, "r") as f: #liest json und speichert in var
+            with open(config_file, "r") as f:  # liest json und speichert in var
                 config = json.loads(f.read())
-            #erweitert known networks Dict
-            config['known_networks'].append({ 
+            # erweitert known networks Dict
+            config['known_networks'].append({
                 "ssid": args["ssid"],
-             			"password": args["password"],
-             			"enables_webrepl": False})
+                "password": args["password"],
+                "enables_webrepl": False})
 
             with open(config_file, "w")as f:  # speichern der geänderten var als Json datei
                 json.dump(config, f)
             print("Netzwerk aufgenommen: ", args["ssid"])
             return "W-Lan verbunden und gespeichert"
         return "Fehler bei verbinden des W-Lans!"
+
+class HTML_response ():
+    def __init__(self, f) -> None:
+        self.get_htmlfile(f)
+
+    def get_htmlfile(self,f):
+        myfile = open(f, "r")
+        self.htmlstring = ""
+        for line in myfile.readlines():
+            self.htmlstring += line
+        #print (self.htmlstring, " !")
+        myfile.close()
+
+    def build_table(self,tabelle):
+        if tabelle == "Anzeige":
+            from src.koffer import App as Koffer
+            
+            #    TODO: feting the instance of Koffer from main or src.koffer umboard zu bekommen
+        
+            #table = self.HTML_tab_bauen("ee")
+            table = "ee"
+        else:
+            table ="Placeholder"
+
+        return table
+
+    def HTML_tab_bauen(self,reihen):
+        table = "<table>"
+        for k, v in reihen:
+            table += "<tr><td>{}</td><td>{}</td></tr>".format(k,v)
+        table += "</table>"
+        return table
+        
+    def get_kwargs(self,**kwargs):
+        return self.htmlstring.format(**kwargs)
+        #eturn ",".join([self.htmlstring.format(v) for k, v in kwargs.items()])
+
+if __name__ == "__main__":
+    h = HTML_response("src/html_css/base.html", table="tabelle",
+                  command="Kommando", wasaimmerr="nic")
+    print(h.response)
+
+
+

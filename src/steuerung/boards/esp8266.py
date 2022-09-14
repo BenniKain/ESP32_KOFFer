@@ -23,7 +23,8 @@ class ESP8266(Board):
     dht11 = DHT11(Pin(pins["D0"]))  # inits DHT sensor
     anzeigeschalter = Pin(pins["D8"], Pin.IN)
 
-    def __init__(self) -> None:
+    def __init__(self,boardtype) -> None:
+        self.get_config(boardtype)
         try:
             self.bmp180 = BMP180(self.i2c)
             self.bmpYN = True
