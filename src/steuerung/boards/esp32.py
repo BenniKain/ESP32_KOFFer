@@ -13,12 +13,6 @@ class ESP_32 (Board):
         super().__init__(boardname)      
         
         #ds = DS1307(i2c)
-        try:
-            self.oled = SSD1306_I2C(128, 64, self.i2c)
-        except:
-            "error Oled Display: rebooting now..."
-            #reset()
-            pass
         """
         self.pumpentaster.irq(trigger=Pin.IRQ_FALLING |
                               Pin.IRQ_RISING, handler=self.pumpPinInterrupt)

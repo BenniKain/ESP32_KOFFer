@@ -9,8 +9,7 @@ import gc
 class Board():
     freq = freq(160000000)    # setzt die frequenz der maschine auf den wert für hx711 waage laut beschreibung
     esp_config_file = "espconfig.json"
-    datenDict = {"temp": "--", "hum": "--",
-                 "tBMP": "--", "press": "--", "alt": "--"}
+    datenDict = {}
     logfile = "/loggingdata/loggingfiles.txt"
     kofferDict = {}
     screenfeld = 1  # für bildschirme zum iterieren von anzeigen
@@ -19,7 +18,6 @@ class Board():
     def __init__(self, boardname) -> None:
         config = self.get_config(boardname)
         cPins = config["Pins"]
-        print (cPins)
         self.i2c = I2C(scl=Pin(cPins["I2C_scl"]),
                        sda=Pin(cPins["I2C_sda"]), freq=400000)
         self.pumpenrelay = Pin(cPins["pumpenrelay"], Pin.OUT)
@@ -28,7 +26,9 @@ class Board():
         #self.hx711 = HX711(pd_sck=cPins["hx711_sck"], dout=cPins["hx711_dout"])
         self.dht11 = DHT11(Pin(cPins["dht11"]))  # inits DHT sensor
         self.anzeigeschalter = Pin(cPins["anzeigeschalter"], Pin.IN)
-        
+        self.start_BMP()
+        self.start_OLED()
+
     def get_config(self, boardname):
         import ujson as json
         config_file = "src/steuerung/boardConfs.json"
@@ -44,6 +44,12 @@ class Board():
         except:
             print("BMP180 nicht gestartet")
             return False
+
+    def start_OLED(self):
+        try:
+            self.oled = SSD1306_I2C(128, 64, self.i2c,external_vcc= True)
+        except Exception as e:
+            print("Error Oled Display: rebooting now...\t",e)
 
     @property
     def get_STA(self):
@@ -71,9 +77,11 @@ class Board():
         while True:
             self.get_STA
             self.get_AP
-            print(self.datenDict)
+            for k in sorted(self.datenDict):
+                print("{} = {}|".format(k, self.datenDict[k]), end="\t")
+            print("",end="\n")
             await asyncio.sleep(5)
-
+             
     def set_ds1306Time(self):
         try:
             zeit = Steuersetup.set_ds1306Time()
@@ -114,25 +122,21 @@ class Board():
             except:
                 temp,hum = "--","--"
             self.datenDict.update({"temp": temp, "hum": hum})
-            print("DHT-Daten upgedated: Temp = {}; Hum = {} ".format(temp,hum))
-            await asyncio.sleep(5)
+            await asyncio.sleep(2)
             
     async def readBMP(self):
         while True:
                 try:
-                    print("Trying to update BMP")
-                    tBMP, press, alt = Datenlesen.read_BMP_Data(self.bmp180)
-                    print("BMP-Daten upgedated")                
-                
+                    tBMP, press, alt = Datenlesen.read_BMP_Data(self.bmp180)                 
                 except Exception as e:
                     if self.start_BMP():
                         tBMP, press, alt = Datenlesen.read_BMP_Data(
                             self.bmp180)
-                    else:tBMP, press, alt = "--", "--", "--"
+                    tBMP, press, alt = "--", "--", "--"
                     print ("Error when reading BMP Sensor ",e)
                 finally:
                     self.datenDict.update({"tBMP": tBMP, "alt": alt, "press": press})
-                    await asyncio.sleep(5)
+                    await asyncio.sleep(2)
 
     async def updateScreen(self):
         while True:
@@ -146,6 +150,6 @@ class Board():
                     Oledanzeige.showIP(self.oled, self.datenDict)
                 self.oled.text("Seite: {}".format(self.screenfeld), 0, 56, 1)
                 self.oled.show()
-            except:
-                pass
+            except Exception as e:
+                self.start_OLED()
             await asyncio.sleep_ms(200)

@@ -1,3 +1,4 @@
+import SSD1306_I2C
 from boards import Board
 from machine import SoftI2C, Pin, reset, SoftSPI
 from libraries import HX711
@@ -33,10 +34,7 @@ class ESP8266(Board):
             self.bmpYN = False
             print("BMP180 nicht gestartet")
         #ds = DS1307(i2c)
-        try:
-            self.oled = SSD1306_I2C(128, 64, self.i2c)
-        except:
-            "error Oled Display: rebooting now..."
+        
             reset()
 
         self.pumpentaster.irq(trigger=Pin.IRQ_FALLING |
