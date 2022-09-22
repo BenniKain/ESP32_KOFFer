@@ -3,26 +3,29 @@ import utime
 import uasyncio as asyncio
 from machine import Pin
 
+
 class Relay ():
     def an(self):
         return self.r.off()
 
     def aus(self):
         return self.r.on()
-    
-    def value (self):
+
+    def value(self):
         return not self.r.value()
 
-    def __init__(self,*args,**kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         self.r = Pin(*args, mode=Pin.OUT, ** kwargs)
-    
+        self.aus()
+
+
 class Ventilqueue():
     l = []
 
-    def add (self, ventil, dauer = 30):
+    def add(self, ventil, dauer=30):
         self.l.append((ventil, dauer))
 
-    async def hinzufügen (self,ventil,dauer=3):
+    async def hinzufügen(self, ventil, dauer=3):
         while True:
             self.l.append((ventil, dauer))
             await asyncio.sleep(10)
@@ -32,22 +35,6 @@ class Ventilqueue():
 
 
 class Steuersetup():
-
-    def sdcard(self):
-        pass
-   
-        #sd card slot if needed not planned
-        #inits SD Card holder
-        #https://github.com/micropython/micropython/blob/a1bc32d8a8fbb09bc04c2ca07b10475f7ddde8c3/drivers/sdcard/sdcard.py    
-        #spisd = SoftSPI(-1, miso=Pin(12), mosi=Pin(13), sck=Pin(14))
-        #sd = SDCard(spisd, Pin(15))
-        #print('Root directory:{}'.format(os.listdir()))
-        #print(gc.mem_free()) 
-        #vfs = os.VfsFat(sd)        #zu wenig speicher um sd karte zu unterstüzen flo fragen
-        #os.mount(vfs, '/sd')
-        #os.chdir('sd')
-        #print('SD Card contains:{}'.format(os.listdir()))
-        
 
     def pumpeANAUS(cls, Pin, pumpenrelay):
         print("value of the InterruptPin: ", Pin.value())
@@ -71,9 +58,9 @@ class Steuersetup():
             return (n[0], n[1], n[2], 0, n[3], n[4], n[5], 0)
         except:
             pass
-    
+
     @classmethod
-    async def showIP(self):
+    async def showIP(cls):
         import network
         ap = network.WLAN(network.AP_IF)
         sta = network.WLAN(network.STA_IF)
@@ -84,18 +71,19 @@ class Steuersetup():
                 sta.ifconfig()[0], sta.config("essid")))
             await asyncio.sleep(5)
 
-class Oledanzeige():
-    def showWaage(self, oled, hx711):
-        oled.text('Waagen anzeige:', 0, 0, 1)
-        oled.text('Gewicht g: :', 0, 14, 1)
-        # len is 4 trotz . wegen float daher 10 sign lang
-        oled.text(str(hx711.read()), 128-len(str(hx711.read()))*10, 14, 1)
-        oled.text("Tare auf ", 0, 28, 1)
-        oled.text(str(hx711.read()), 128 -
-                  len(str(round(hx711.offset, 1)))*10, 28, 1)
-        print(hx711.read())
 
-    def showValues(self, oled, datenDict):
+class Oledanzeige():
+    @classmethod
+    def showWaage(cls, oled, hx711):
+        val = hx711.read()
+        oled.text('Waage', 0, 0, 1)
+        oled.text("Gewicht in g:",0,14)
+        # len is 4 trotz . wegen float daher 10 sign lang
+        oled.text(str(val), 0, 28, 1)
+        print(val)
+
+    @classmethod
+    def showValues(cls, oled, datenDict):
         oled.text('T C:', 0, 0, 1)
         oled.text(datenDict["temp"], 128-len(datenDict["temp"])*9, 0, 1)
         oled.text('Feuchte %:', 0, 14, 1)
@@ -105,25 +93,18 @@ class Oledanzeige():
         oled.text('T C:', 0, 42, 1)
         oled.text(datenDict["tBMP"], 128-len(datenDict["tBMP"])*9, 42, 1)
 
-    def showIP(self, oled, datenDict):
-        oled.text('Name:', 0, 0, 1)
-        oled.text(datenDict["name"], 128-len(datenDict["name"])*9, 0, 1)
-        oled.text('IP:', 0, 14, 1)
-        oled.text(datenDict["ip"], 128-len(datenDict["ip"])*9, 14, 1)
-
-    def nextANzeige(self, screenfeld, screenfelder):
-        if screenfeld == len(screenfelder):
-            screenfeld = 1
-        else:
-            screenfeld += 1
-        sleep(0.1)
-        print("anzeige: {}".format(screenfeld))
-        return screenfeld
+    @classmethod
+    def showIP(cls, oled, datenDict):
+        oled.text('WiFi Name:', 0, 0, 1)
+        oled.text(datenDict["STA_Name"], 128 -
+                  len(datenDict["STA_Name"])*9, 14, 1)
+        oled.text('WiFi IP:', 0, 28, 1)
+        oled.text(datenDict["STA_IP"], 128-len(datenDict["STA_IP"])*9, 42, 1)
 
 
 class Datenlesen ():
     @classmethod
-    def read_DHT_data(cls,dht11):
+    def read_DHT_data(cls, dht11):
         try:
             dht11.measure()
             temp = str(dht11.temperature())
@@ -131,20 +112,22 @@ class Datenlesen ():
         except Exception as e:
             temp = "--"
             hum = "--"
-            print(e)
+            print("Failed to read DHT Sensor: ", e)
         finally:
             return temp, hum
 
     @classmethod
-    def read_BMP_Data(cls,bmp180):
+    def read_BMP_Data(cls, bmp180):
         try:
             tBMP = str(round(bmp180.temperature, 1))
             press = str(int(bmp180.pressure / 100))  # in Pa, mit /100 in hPa
             alt = str(round(bmp180.altitude / 100, 0))
-            return tBMP, press, alt
+
         except Exception as e:
-            return e
- 
+            print("Failed to read BMP Sensor: ", e)
+            tBMP, press, alt = "--", "--", "--"
+        finally:
+            return tBMP, press, alt
 
     def save_new_Wifi(self, **args):
         # wird nicht wahr trotz handy wlan testeingabe
@@ -165,11 +148,12 @@ class Datenlesen ():
             return "W-Lan verbunden und gespeichert"
         return "Fehler bei verbinden des W-Lans!"
 
+
 class HTML_response ():
     def __init__(self, f) -> None:
         self.get_htmlfile(f)
 
-    def get_htmlfile(self,f):
+    def get_htmlfile(self, f):
         myfile = open(f, "r")
         self.htmlstring = ""
         for line in myfile.readlines():
@@ -177,34 +161,32 @@ class HTML_response ():
         #print (self.htmlstring, " !")
         myfile.close()
 
-    def build_table(self,tabelle):
+    def build_table(self, tabelle):
         if tabelle == "Anzeige":
             from src.koffer import App as Koffer
-            
+
             #    TODO: feting the instance of Koffer from main or src.koffer umboard zu bekommen
-        
+
             #table = self.HTML_tab_bauen("ee")
             table = "ee"
         else:
-            table ="Placeholder"
+            table = "Placeholder"
 
         return table
 
-    def HTML_tab_bauen(self,reihen):
+    def HTML_tab_bauen(self, reihen):
         table = "<table>"
         for k, v in reihen:
-            table += "<tr><td>{}</td><td>{}</td></tr>".format(k,v)
+            table += "<tr><td>{}</td><td>{}</td></tr>".format(k, v)
         table += "</table>"
         return table
-        
-    def get_kwargs(self,**kwargs):
+
+    def get_kwargs(self, **kwargs):
         return self.htmlstring.format(**kwargs)
-        #eturn ",".join([self.htmlstring.format(v) for k, v in kwargs.items()])
+        # eturn ",".join([self.htmlstring.format(v) for k, v in kwargs.items()])
+
 
 if __name__ == "__main__":
     h = HTML_response("src/html_css/base.html", table="tabelle",
-                  command="Kommando", wasaimmerr="nic")
+                      command="Kommando", wasaimmerr="nic")
     print(h.response)
-
-
-

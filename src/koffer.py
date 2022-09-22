@@ -28,16 +28,15 @@ class App():
         loop = asyncio.get_event_loop()
 
         loop.create_task(wifimngr.manage())
-        #loop.create_task(Steuersetup.showIP())
-
+        loop.create_task(Steuersetup.showIP())
+        #loop.create_task(self.board.waagenanzeige())
 
         loop.create_task(self.vq.hinzufügen(self.board.ventil1)) #used for testing the queue
-        loop.create_task(self.board.queueing(self.vq,))
+        loop.create_task(self.board.queueing(self.vq))
         loop.create_task(self.board.collectGarbage())
-        loop.create_task(self.board.readBMP())
-        loop.create_task(self.board.readDHT())   
+        loop.create_task(self.board.readSensoren()) 
         loop.create_task(self.board.updateScreen())
-        #loop.create_task(self.board.updateIPs())
+        loop.create_task(self.board.updateIPs())
         loop.create_task(hostserver.run(host=network.WLAN(network.STA_IF).ifconfig()[0]))
 
         print("Tasks created .. starting event loop ...")

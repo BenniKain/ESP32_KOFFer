@@ -23,8 +23,6 @@ class ESP_32 (Board):
                               Pin.IRQ_RISING, handler=self.pumpPinInterrupt)
         self.anzeigeschalter.irq(
             trigger=Pin.IRQ_RISING, handler=self.anzeigeInterrupt)
-        self.waagen_taster.irq(trigger=Pin.IRQ_RISING,
-                               handler=self.waagentarInterrupt)
         """
         self.get_espID
         
@@ -38,48 +36,18 @@ class ESP_32 (Board):
 
     async def queueing (self,vq):
         while True:
-            self.pumpenrelay.an()
-            while vq.l:
-                print(vq.l)
-                vent,dauer = vq.l.pop(0)
-                print("Printing: ",type(vent),dauer)
-                vent.an()
-                await asyncio.sleep(dauer)
-                vent.aus()
-            print("No more measuerements in queue")
-            self.pumpenrelay.aus()
-            await asyncio.sleep(2)
-   
-            
-
-    async def ventilTest (self,vq):
-        self.pumpenrelay.an()
-        self.ventil1.aus()
-        self.ventil2.aus()
-        self.ventil3.aus()
-        while True:
-            print("Starte ventiltest: Ventil 1 ist ", self.ventil1.value())
-            
             try:
                 
-                if  self.ventil1.value():
-                    print ("ventil2 on")
-                    self.ventil1.aus()
-                    self.ventil2.an()
-                    self.ventil3.aus()
-                elif  self.ventil2.value():
-                    print("ventil3 on")
-                    self.ventil1.aus()
-                    self.ventil2.aus()
-                    self.ventil3.an()
-                    #self.pumpenrelay.aus()
-                elif  self.ventil3.value():
-                    print("ventil1 on")
-                    self.ventil1.an()
-                    self.ventil2.aus()
-                    self.ventil3.aus()
-                else:
-                    self.ventil1.an()
+                while vq.l:
+                    self.pumpenrelay.an()
+                    vent,dauer = vq.l.pop(0)
+                    print("Printing: ",vent,dauer)
+                    vent.an()
+                    await asyncio.sleep(dauer)
+                    vent.aus()
+                print("No more measuerements in queue")
+                self.pumpenrelay.aus()
             except Exception as e:
-                print (e)
-            await asyncio.sleep(5)
+                print(e)
+            await asyncio.sleep(2)
+   
