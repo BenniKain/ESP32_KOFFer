@@ -162,7 +162,6 @@ class Board():
         while True:
             try:
                 self.oled.fill(0)
-                print(self.screenfeld)
                 if self.screenfeld == 1:
                     Oledanzeige.showValues(self.oled, self.datenDict)
                 elif self.screenfeld == 2:
