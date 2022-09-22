@@ -1,6 +1,35 @@
 from time import sleep
 import utime
 import uasyncio as asyncio
+from machine import Pin
+
+class Relay ():
+    def an(self):
+        return self.r.off()
+
+    def aus(self):
+        return self.r.on()
+    
+    def value (self):
+        return not self.r.value()
+
+    def __init__(self,*args,**kwargs) -> None:
+        self.r = Pin(*args, mode=Pin.OUT, ** kwargs)
+    
+class Ventilqueue():
+    l = []
+
+    def add (self, ventil, dauer = 30):
+        self.l.append((ventil, dauer))
+
+    async def hinzufügen (self,ventil,dauer=3):
+        while True:
+            self.l.append((ventil, dauer))
+            await asyncio.sleep(10)
+
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        return self.l
+
 
 class Steuersetup():
 
@@ -10,14 +39,14 @@ class Steuersetup():
         #sd card slot if needed not planned
         #inits SD Card holder
         #https://github.com/micropython/micropython/blob/a1bc32d8a8fbb09bc04c2ca07b10475f7ddde8c3/drivers/sdcard/sdcard.py    
-        spisd = SoftSPI(-1, miso=Pin(12), mosi=Pin(13), sck=Pin(14))
-        sd = SDCard(spisd, Pin(15))
-        print('Root directory:{}'.format(os.listdir()))
-        print(gc.mem_free()) 
-        vfs = os.VfsFat(sd)        #zu wenig speicher um sd karte zu unterstüzen flo fragen
-        os.mount(vfs, '/sd')
-        os.chdir('sd')
-        print('SD Card contains:{}'.format(os.listdir()))
+        #spisd = SoftSPI(-1, miso=Pin(12), mosi=Pin(13), sck=Pin(14))
+        #sd = SDCard(spisd, Pin(15))
+        #print('Root directory:{}'.format(os.listdir()))
+        #print(gc.mem_free()) 
+        #vfs = os.VfsFat(sd)        #zu wenig speicher um sd karte zu unterstüzen flo fragen
+        #os.mount(vfs, '/sd')
+        #os.chdir('sd')
+        #print('SD Card contains:{}'.format(os.listdir()))
         
 
     def pumpeANAUS(cls, Pin, pumpenrelay):
@@ -42,7 +71,7 @@ class Steuersetup():
             return (n[0], n[1], n[2], 0, n[3], n[4], n[5], 0)
         except:
             pass
-
+    
     @classmethod
     async def showIP(self):
         import network
@@ -116,17 +145,6 @@ class Datenlesen ():
         except Exception as e:
             return e
  
-    def connect_Wifi(cls, ssid, password) -> bool:
-        try:
-            import network
-            wlan = network.WLAN(network.STA_IF)
-            wlan.connect(ssid, password)
-            for check in range(0, 10):
-                if wlan.isconnected():
-                    return True
-                sleep(0.5)
-        except:
-            return False
 
     def save_new_Wifi(self, **args):
         # wird nicht wahr trotz handy wlan testeingabe

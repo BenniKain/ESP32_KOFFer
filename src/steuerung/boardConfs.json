@@ -3,17 +3,17 @@
         {
             "Pins" : {
                 "dht11": 33,
-                "I2C_scl": 15,
-                "I2C_sda": 16,
-                "pumpenrelay": 0,
-                "pumpentaster": 18,
-                "waagentaste": 19,
+                "I2C_scl": 22,
+                "I2C_sda": 21,
+                "pumpenrelay": 19,
+                "pumpentaster": "",
+                "waagentaste": "",
                 "hx711_sck": 23,
-                "hx711_dout" :21,
-                "anzeigeschalter": 22,
-                "relay1": "1",
-                "relay2": "1",
-                "relay3": "1"
+                "hx711_dout" :25,
+                "anzeigeschalter": 26,
+                "ventil1": 16,
+                "ventil2": 17,
+                "ventil3": 18
             }
         }        
     ,

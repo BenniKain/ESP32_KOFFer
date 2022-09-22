@@ -2,7 +2,7 @@ from machine import freq,Pin,I2C
 import machine,utime,network
 from dht import DHT11
 from src.libraries import *
-from src.steuerung.methoden import Datenlesen,Steuersetup,Oledanzeige
+from src.steuerung.methoden import Datenlesen,Steuersetup,Oledanzeige,Relay
 import uasyncio as asyncio
 import gc
 
@@ -17,15 +17,15 @@ class Board():
 
     def __init__(self, boardname) -> None:
         config = self.get_config(boardname)
-        cPins = config["Pins"]
-        self.i2c = I2C(scl=Pin(cPins["I2C_scl"]),
-                       sda=Pin(cPins["I2C_sda"]), freq=400000)
-        self.pumpenrelay = Pin(cPins["pumpenrelay"], Pin.OUT)
-        self.pumpentaster = Pin(cPins["pumpentaster"], Pin.IN)
-        self.waagen_taster = Pin(cPins["waagentaste"], Pin.IN) 
-        #self.hx711 = HX711(pd_sck=cPins["hx711_sck"], dout=cPins["hx711_dout"])
-        self.dht11 = DHT11(Pin(cPins["dht11"]))  # inits DHT sensor
-        self.anzeigeschalter = Pin(cPins["anzeigeschalter"], Pin.IN)
+        self.cPins = config["Pins"]
+        self.i2c = I2C(scl=Pin(self.cPins["I2C_scl"]),
+                       sda=Pin(self.cPins["I2C_sda"]), freq=400000)
+        self.pumpenrelay = Relay(self.cPins["pumpenrelay"])
+        #self.pumpentaster = Pin(self.cPins["pumpentaster"], Pin.IN)
+        #self.waagen_taster = Pin(self.cPins["waagentaste"], Pin.IN) 
+        #self.hx711 = HX711(pd_sck=self.cPins["hx711_sck"], dout=self.cPins["hx711_dout"])
+        self.dht11 = DHT11(Pin(self.cPins["dht11"]))  # inits DHT sensor
+        self.anzeigeschalter = Pin(self.cPins["anzeigeschalter"], Pin.IN)
         self.start_BMP()
         self.start_OLED()
 
