@@ -12,7 +12,9 @@ import gc
 class Board():
     
     esp_config_file = "espconfig.json"
-    datenDict = {}
+    datenDict = {"temp": "--", "hum": "--",
+                  "tBMP": "--", "alt": "--", "press": "--",
+                  "STA_Name":"--","STA_IP":"--"}
     logfile = "/loggingdata/loggingfiles.txt"
     kofferDict = {}
     screenfeld = 1  # für bildschirme zum iterieren von anzeigen
