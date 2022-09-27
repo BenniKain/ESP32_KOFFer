@@ -6,36 +6,38 @@ h1 {
 div.footer,
 h1,
 table {
-    text-align: center
+    text-align: center;
 }
 
 body {
-    font-size: 10pt;
+    font-size: 20pt;
     color: #4a132e;
     line-height: 16pt;
-    padding-left: 5pt;
-    padding-top: 5pt;
-    padding-right: 5pt;
+    padding: 5pt;
     background-color: #4db44d
 }
 
 h1 {
-    font-size: 20pt;
+    font-size: 30pt;
     font-weight: 700;
     line-height: 20pt
 }
 
 table {
     width: 100%;
-    border-collapse: collapse
+    border: 1px solid black;
+    border-collapse: collapse;
+    font-size: 40pt;
 }
 
+td,th{
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 20pt;
+    height: 100pt;
+}
 a {
     text-decoration: underline
-}
-
-a:visited {
-    color: #8a2be2
 }
 
 a:active {
@@ -53,7 +55,7 @@ button {
 
 div.footer {
     color: #7d7db6;
-    font-size: 8pt;
+    font-size: 10pt;
     font-style: italic;
-    line-height: 10pt
+    line-height: 20pt
 }

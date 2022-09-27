@@ -42,12 +42,15 @@ class Ventilqueue():
                 break
             zeit += i[1]
             j+=1
-
         
         startzeit = list(utime.localtime(
             utime.mktime(utime.localtime()) + 3600+summertime))
-        print(startzeit)
         minute = round((startzeit[4]+zeit) % 60)
+        if minute <10:
+            minute = "0{}".format(minute)
+        else:
+            minute = "{}".format(minute)
+
         extrastunden = (startzeit[4]+zeit) // 60
         stunde = round((startzeit[3]+extrastunden) % 24)
         return stunde,minute
@@ -90,19 +93,6 @@ class Steuersetup():
             return (n[0], n[1], n[2], 0, n[3], n[4], n[5], 0)
         except:
             pass
-
-    @classmethod
-    async def showIP(cls):
-        import network
-        ap = network.WLAN(network.AP_IF)
-        sta = network.WLAN(network.STA_IF)
-        while True:
-            print("Accespoint IP {} \t NAme: {}".format(
-                ap.ifconfig()[0], ap.config("essid")))
-            print("Stationpint IP {} \t NAme: {}".format(
-                sta.ifconfig()[0], sta.config("essid")))
-            await asyncio.sleep(5)
-
 
 class Oledanzeige():
     @classmethod
@@ -190,7 +180,6 @@ class HTML_response ():
         self.htmlstring = ""
         for line in myfile.readlines():
             self.htmlstring += line
-        #print (self.htmlstring, " !")
         myfile.close()
 
     def build_table(self, tabelle):
@@ -228,7 +217,6 @@ class HTML_response ():
         table = "<table>"
         table += self.build_tab_überschrift(üsliste)
         for data in datendict:
-            print("Data ", data)
             table += "<tr>"
             for row in data:
                 table += "<td>{}</td>".format(row)
@@ -245,8 +233,3 @@ class HTML_response ():
 
     def get_kwargs(self, **kwargs):
         return self.htmlstring.format(**kwargs)
-
-if __name__ == "__main__":
-    h = HTML_response("src/html_css/base.html", table="tabelle",
-                      command="Kommando", wasaimmerr="nic")
-    print(h.response)

@@ -9,7 +9,7 @@ class App():
     def get_Board (self):
         # checks type of esp and therefore gets the right onstance of the board
         self.boardname = os.uname().sysname
-        if  self.boardname== "esp32":
+        if  self.boardname == "esp32":
             from .steuerung.boards.esp32 import ESP_32 as ESP
             
         elif self.boardname == "esp8266":
@@ -28,9 +28,8 @@ class App():
             loop = asyncio.get_event_loop()
 
             loop.create_task(self.wifimngr.manage())
-            loop.create_task(Steuersetup.showIP())
             #loop.create_task(self.board.waagenanzeige()) 
-            self.vq.add(self.board.ventil1)# sollte über eine html from ausgeführt werden TODO
+            self.vq.add(self.board.ventil1,dauer=50)# sollte über eine html from ausgeführt werden TODO
             # loop.create_task(self.vq.hinzufügen(self.board.ventil1)) #used for testing the queue
             self.vq.add(self.board.ventil2)
             #loop.create_task(self.board.queueing(self.vq))

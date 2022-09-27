@@ -3,11 +3,22 @@
 MIT license
 (C) Konstantin Belyalov 2017-2018
 """
+
 import src.libraries.tinyweb as tinyweb
 from src.steuerung.methoden import HTML_response
 
 # Create web server application
 app = tinyweb.webserver()
+
+class POST_Method:
+
+    @classmethod
+    def post(cls, data):
+        print(data)
+        return data
+
+app.add_resource(POST_Method,url="/button")
+
 
 # Index page
 @app.route('/')
@@ -35,17 +46,6 @@ async def espconfig(request,response):
     # Send actual HTML page
     await response.send(resp)
 
-
-@app.route(url ="/button",kwargs= "?Koffer=Koffer1")#mit methos POST geht es nicht
-async def button(request, response):
-    print("button")
-    print(request. read_parse_form_data())
-    print(request.read_request_line())
-    print(request.read_headers())
-
-    await response.redirect("/")
-
-
 @app.route("/buttontest")
 async def buttontest(request, response):
     await response.start_html()
@@ -65,6 +65,8 @@ async def config(request,response):
     # Send actual HTML page
     await response.send(resp)
     
+
+
 # Another one, more complicated page
 @app.route('/ventilqueue')
 async def ventilqueue(request, response):
@@ -74,6 +76,14 @@ async def ventilqueue(request, response):
     table = h.build_table("Ventilqueue")
     resp = h.get_kwargs(table=table,command="Kommand")
     await response.send(resp)
+
+@app.route("/css/<fn>")
+async def files_css(req, resp, fn):
+    await resp.send_file(
+        "src/html_css/{}".format(fn),
+        content_type="text/css",
+        )
+
 
 async def run(host='0.0.0.0', loop_forever=True):
     app.run(host=host, port=8081, loop_forever=loop_forever)
