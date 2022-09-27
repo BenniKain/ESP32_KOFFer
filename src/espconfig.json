@@ -2,13 +2,25 @@
 	"known_ESP": [
         {
 			"espID": "1234567890",
-			"name": "Koffer1",
-			"mode": "Koffer"
+			"espType": "esp8266",
+			"name": "Default_Koffer",
+			"mode": "Koffer",
+			"sommerzeit": "True"
 		},
 		{
 			"espID": "1458280",
-			"name": "Koffer2",
-			"mode": "Koffer"
+			"espType": "esp8266",
+			"name": "Default_Koffer",
+			"mode": "Koffer",
+			"sommerzeit": "True"
+		},
+		{
+			"espID": "30c6f7055ce4",
+			"espType": "esp32",
+			"name": "Default_Koffer",
+			"mode": "Koffer",
+			"sommerzeit":"True"
 		}
+		
 	]
 }

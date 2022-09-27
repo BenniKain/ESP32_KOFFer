@@ -14,7 +14,6 @@ app = tinyweb.webserver()
 async def index(request, response):
     # Start HTTP response with content-type text/html
     await response.start_html()
-    #resp = '<html><body><h1>Hello, world! (<a href="/table">table</a>)</h1></html>\n'
     h = HTML_response("src/html_css/base.html")
     table = h.build_table("Anzeige")
     resp = h.get_kwargs(table=table,command="Kommand")
@@ -27,22 +26,57 @@ async def redirect(request, response):
     # Start HTTP response with content-type text/html
     await response.redirect('/')
 
+@app.route("/espConfig")
+async def espconfig(request,response):
+    await response.start_html()
+    h = HTML_response("src/html_css/base.html")
+    table = h.build_table("ESPConfig")
+    resp = h.get_kwargs(table=table,command="Kommand")
+    # Send actual HTML page
+    await response.send(resp)
 
+
+@app.route(url ="/button",kwargs= "?Koffer=Koffer1")#mit methos POST geht es nicht
+async def button(request, response):
+    print("button")
+    print(request. read_parse_form_data())
+    print(request.read_request_line())
+    print(request.read_headers())
+
+    await response.redirect("/")
+
+
+@app.route("/buttontest")
+async def buttontest(request, response):
+    await response.start_html()
+    h = HTML_response("src/html_css/base.html")
+    table = "<a href=/button><button>einschalten</button></a>"
+    resp = h.get_kwargs(table=table, command="Kommand")
+    # Send actual HTML page
+    await response.send(resp)
+
+"<a href=\\button><button>einschalten</button></a>"
+@app.route("/config")
+async def config(request,response):
+    await response.start_html()
+    h = HTML_response("src/html_css/base.html")
+    table = h.build_table("Config")
+    resp = h.get_kwargs(table=table,command="Kommand")
+    # Send actual HTML page
+    await response.send(resp)
+    
 # Another one, more complicated page
-@app.route('/table')
-async def table(request, response):
+@app.route('/ventilqueue')
+async def ventilqueue(request, response):
     # Start HTTP response with content-type text/html
     await response.start_html()
-    await response.send('<html><body><h1>Simple table</h1>'
-                        '<table border=1 width=400>'
-                        '<tr><td>Name</td><td>Some Value</td></tr>')
-    for i in range(10):
-        await response.send('<tr><td>Name{}</td><td>Value{}</td></tr>'.format(i, i))
-    await response.send('</table>'
-                        '</html>')
+    h = HTML_response("src/html_css/base.html")
+    table = h.build_table("Ventilqueue")
+    resp = h.get_kwargs(table=table,command="Kommand")
+    await response.send(resp)
 
-async def run(host = '0.0.0.0'):
-    app.run(host= host, port=8081)
+async def run(host='0.0.0.0', loop_forever=True):
+    app.run(host=host, port=8081, loop_forever=loop_forever)
 
 def shutdown():
     app.shutdown()
@@ -52,8 +86,6 @@ if __name__ == '__main__':
     # To test your app:
     # - Terminal:
     #   $ curl http://localhost:8081
-    #   or
-    #   $ curl http://localhost:8081/table
     #
     # - Browser:
     #   http://localhost:8081

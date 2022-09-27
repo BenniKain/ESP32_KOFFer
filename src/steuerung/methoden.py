@@ -14,21 +14,53 @@ class Relay ():
     def value(self):
         return not self.r.value()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, name="Default_Name", **kwargs) -> None:
+        self.name = name
         self.r = Pin(*args, mode=Pin.OUT, ** kwargs)
         self.aus()
+
+    def __name__(self):
+        return self.name
 
 
 class Ventilqueue():
     l = []
+    lNames = ["Ventil-Name", "Zeitdauer in min","Startzeit"]
+  
+    def __init__(self,board) -> None:
+        self.sommerzeit = board.sommerzeit
+
+    def set_Startzeit(self,pos):
+        if self.sommerzeit:
+            summertime = 3600
+        else:
+            summertime = 0
+        zeit,j = 0,0
+        for i in self.l:
+            if j == pos:
+                print("verzögerung ", zeit)
+                break
+            zeit += i[1]
+            j+=1
+
+        
+        startzeit = list(utime.localtime(
+            utime.mktime(utime.localtime()) + 3600+summertime))
+        print(startzeit)
+        minute = round((startzeit[4]+zeit) % 60)
+        extrastunden = (startzeit[4]+zeit) // 60
+        stunde = round((startzeit[3]+extrastunden) % 24)
+        return stunde,minute
 
     def add(self, ventil, dauer=30):
-        self.l.append((ventil, dauer))
+        stunde,minute = self.set_Startzeit(len(self.l))
+        print("Startzeit {}:{}".format(stunde,minute))
+        self.l.append([ventil.__name__(), dauer,"{}:{}".format(stunde,minute)])
 
-    async def hinzufügen(self, ventil, dauer=3):
+    async def hinzufügen(self, ventil, dauer=30):
         while True:
-            self.l.append((ventil, dauer))
-            await asyncio.sleep(10)
+            self.add((ventil, dauer))
+            await asyncio.sleep(dauer)
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         return self.l
@@ -77,7 +109,7 @@ class Oledanzeige():
     def showWaage(cls, oled, hx711):
         val = hx711.read()
         oled.text('Waage', 0, 0, 1)
-        oled.text("Gewicht in g:",0,14)
+        oled.text("Gewicht in g:", 0, 14)
         # len is 4 trotz . wegen float daher 10 sign lang
         oled.text(str(val), 0, 28, 1)
         print(val)
@@ -162,29 +194,57 @@ class HTML_response ():
         myfile.close()
 
     def build_table(self, tabelle):
+        from main import k as koffer
         if tabelle == "Anzeige":
-            from src.koffer import App as Koffer
+            table = self.create_table(
+                koffer.board.datenDict.items(), üsliste=["Name", "Wert"])
 
-            #    TODO: feting the instance of Koffer from main or src.koffer umboard zu bekommen
+        elif tabelle == "Config":
+            config = koffer.board.get_config(koffer.boardname)
+            dictitems = {}
+            for k in config:
+                for configKey in config[k]:
+                    dictitems[configKey] = config[k][configKey]
+            table = self.create_table(
+                dictitems.items(), üsliste=["Name", "Wert"])
 
-            #table = self.HTML_tab_bauen("ee")
-            table = "ee"
+        elif tabelle == "ESPConfig":
+            config = koffer.board.get_ESP_Config()
+            dictitems = {}
+            for k in config:
+                dictitems[k] = config[k]
+                
+            table = self.create_table(
+                dictitems.items(), üsliste=["Name", "Wert"])
+
+        elif tabelle == "Ventilqueue":
+            table = self.create_table(koffer.vq.l, üsliste=koffer.vq.lNames)
+
         else:
             table = "Placeholder"
-
         return table
 
-    def HTML_tab_bauen(self, reihen):
+    def create_table(self, datendict, üsliste=""):
         table = "<table>"
-        for k, v in reihen:
-            table += "<tr><td>{}</td><td>{}</td></tr>".format(k, v)
+        table += self.build_tab_überschrift(üsliste)
+        for data in datendict:
+            print("Data ", data)
+            table += "<tr>"
+            for row in data:
+                table += "<td>{}</td>".format(row)
+            table += "</>"
         table += "</table>"
+        return table
+
+    def build_tab_überschrift(self, überschriftlist):
+        table = "<tr>"
+        for i in überschriftlist:
+            table += "<th>{}</th>".format(i)
+        table += "</tr>"
         return table
 
     def get_kwargs(self, **kwargs):
         return self.htmlstring.format(**kwargs)
-        # eturn ",".join([self.htmlstring.format(v) for k, v in kwargs.items()])
-
 
 if __name__ == "__main__":
     h = HTML_response("src/html_css/base.html", table="tabelle",

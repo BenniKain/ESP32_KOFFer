@@ -1,38 +1,34 @@
 {
-    "esp32": 
-        {
-            "Pins" : {
-                "dht11": 33,
-                "I2C_scl": 22,
-                "I2C_sda": 21,
-                "pumpenrelay": 19,
-                "pumpentaster": "",
-                "waagenTaste": 4,
-                "hx711_sck": 23,
-                "hx711_dout" :25,
-                "anzeigeschalter": 26,
-                "ventil1": 16,
-                "ventil2": 17,
-                "ventil3": 18
-            },
-            "Waage": {
-                "SCALING_FACTOR": -1861.4
-                }
-        }        
-    ,
-    "esp8266": [
-        {
-            "Pins": [{
-                "dht11": "D0",
-                "I2C_scl": "D1",
-                "I2C_sda": "D2",
-                "pumpenrelay": "D7",
-                "pumpentaster": "F3",
-                "waagenTaste": "D4",
-                "hx711_sck": "D5",
-                "hx711_dout": "D6",
-                "anzeigeschalter": "D8"
-            }]
+    "esp32": {
+        "Pins": {
+            "dht11": 33,
+            "I2C_scl": 22,
+            "I2C_sda": 21,
+            "pumpenrelay": 19,
+            "pumpentaster": "",
+            "waagenTaste": 4,
+            "hx711_sck": 23,
+            "hx711_dout": 25,
+            "anzeigeschalter": 26,
+            "ventil1": 16,
+            "ventil2": 17,
+            "ventil3": 18
+        },
+        "Waage": {
+            "SCALING_FACTOR": -1861.4
         }
-    ]
+    },
+    "esp8266": {
+        "Pins": {
+            "dht11": "D0",
+            "I2C_scl": "D1",
+            "I2C_sda": "D2",
+            "pumpenrelay": "D7",
+            "pumpentaster": "F3",
+            "waagenTaste": "D4",
+            "hx711_sck": "D5",
+            "hx711_dout": "D6",
+            "anzeigeschalter": "D8"
+        }
+    }
 }

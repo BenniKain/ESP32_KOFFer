@@ -13,16 +13,14 @@ class ESP_32 (Board):
     def __init__(self, boardname) -> None:
         super().__init__(boardname)      
         
-        self.ventil1 = Relay(self.cPins["ventil1"])
-        self.ventil2 = Relay(self.cPins["ventil2"])
-        self.ventil3 = Relay(self.cPins["ventil3"])
+        self.ventil1 = Relay(self.cPins["ventil1"], name="Ventil1")
+        self.ventil2 = Relay(self.cPins["ventil2"], name="Ventil2")
+        self.ventil3 = Relay(self.cPins["ventil3"], name="Ventil3")
         self.ventile = [self.ventil1, self.ventil2, self.ventil3]
         #ds = DS1307(i2c)
         """
         self.pumpentaster.irq(trigger=Pin.IRQ_FALLING |
                               Pin.IRQ_RISING, handler=self.pumpPinInterrupt)
-        self.anzeigeschalter.irq(
-            trigger=Pin.IRQ_RISING, handler=self.anzeigeInterrupt)
         """
         self.get_espID
         
@@ -31,7 +29,7 @@ class ESP_32 (Board):
         import ubinascii
         espID = str(ubinascii.hexlify(unique_id()).decode("utf-8"))
         self.datenDict.update({"espID": espID})
-        print("ID des ESP's: ", espID)
+        #print("ID des ESP's: ", espID)
         return espID
 
     async def queueing (self,vq):

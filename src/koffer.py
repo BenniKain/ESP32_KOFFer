@@ -8,36 +8,47 @@ import network
 class App():
     def get_Board (self):
         # checks type of esp and therefore gets the right onstance of the board
-        boardname = os.uname().sysname
-        if  boardname== "esp32":
+        self.boardname = os.uname().sysname
+        if  self.boardname== "esp32":
             from .steuerung.boards.esp32 import ESP_32 as ESP
             
-        elif boardname == "esp8266":
-            from src.steuerung.boards.esp8266 import ESP8266 as ESP
-        return ESP(boardname)
-
+        elif self.boardname == "esp8266":
+            from .steuerung.boards.esp8266 import ESP8266 as ESP
+        return ESP(self.boardname)
 
     def __init__(self) -> None:
         self.board = self.get_Board()
-        self.vq = Ventilqueue()
-        self.vq.add(self.board.ventil1,4)
-        self.vq.add(self.board.ventil2, 4)
-        self.vq.add(self.board.ventil1, 4)
-        self.vq.add(self.board.ventil3, 4)
-        wifimngr = WifiManager()
-        loop = asyncio.get_event_loop()
+        self.vq = Ventilqueue(self.board)
+        self.wifimngr = WifiManager()
+        self.board.set_time()
 
-        loop.create_task(wifimngr.manage())
-        loop.create_task(Steuersetup.showIP())
-        #loop.create_task(self.board.waagenanzeige())
+    def run(self) -> None:
+        
+        try:
+            loop = asyncio.get_event_loop()
 
-        loop.create_task(self.vq.hinzufügen(self.board.ventil1)) #used for testing the queue
-        loop.create_task(self.board.queueing(self.vq))
-        loop.create_task(self.board.collectGarbage())
-        loop.create_task(self.board.readSensoren()) 
-        loop.create_task(self.board.updateScreen())
-        loop.create_task(self.board.updateIPs())
-        loop.create_task(hostserver.run(host=network.WLAN(network.STA_IF).ifconfig()[0]))
+            loop.create_task(self.wifimngr.manage())
+            loop.create_task(Steuersetup.showIP())
+            #loop.create_task(self.board.waagenanzeige()) 
+            self.vq.add(self.board.ventil1)# sollte über eine html from ausgeführt werden TODO
+            # loop.create_task(self.vq.hinzufügen(self.board.ventil1)) #used for testing the queue
+            self.vq.add(self.board.ventil2)
+            #loop.create_task(self.board.queueing(self.vq))
+            loop.create_task(self.board.collectGarbage())
+            loop.create_task(self.board.readSensoren()) 
+            loop.create_task(self.board.updateScreen())
+            loop.create_task(self.board.updateIPs())
+            loop.create_task(hostserver.run(host=network.WLAN(network.STA_IF).ifconfig()[0]))
 
-        print("Tasks created .. starting event loop ...")
-        loop.run_forever()
+            print("Tasks created .. starting event loop ...")
+            loop.run_forever()
+        except KeyboardInterrupt as e:
+            print("KeyboardInterrupt: ",e)
+            hostserver.shutdown()
+            loop.close()
+        except Exception as e:
+            raise e# from machine import reset as r
+            # import utime
+            # print("ERROR {} \nReseting in 5 sec ...".format(e))
+            # utime.sleep(5)
+            # r()

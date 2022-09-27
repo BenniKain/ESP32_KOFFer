@@ -22,6 +22,8 @@ class Board():
 
     def __init__(self, boardname) -> None:
         self.config = self.get_config(boardname)
+        self.espconfig = self.get_ESP_Config()
+        self.sommerzeit = self.espconfig["sommerzeit"]
         self.cPins = self.config["Pins"]
         self.i2c = I2C(scl=Pin(self.cPins["I2C_scl"]),
                        sda=Pin(self.cPins["I2C_sda"]), freq=400000)
@@ -33,12 +35,32 @@ class Board():
         self.start_BMP()
         self.start_OLED()
 
+    def set_time(self):
+        try:
+            import ntptime
+            ntptime.settime()  # set the rtc datetime from the remote server geht eine stunde falsch wegen zeitverschiebung. rtc.dattime nimmt komisches argument, nicht geschafft
+
+            t = utime.localtime(utime.mktime(utime.localtime()) + 3600)
+            print(t)
+        except:
+            pass
+
+    def get_ESP_Config(self):
+        import ujson as json
+        config_file = "src/espconfig.json"
+        with open(config_file, "r") as jsonfile:
+            data = json.loads(jsonfile.read())
+        for knownesp in data["known_ESP"]:
+            if knownesp["espID"] == self.get_espID:
+                return knownesp
+
     def get_config(self, boardname):
         import ujson as json
         config_file = "src/steuerung/boardConfs.json"
         with open(config_file, "r") as jsonfile:
             data = json.loads(jsonfile.read())
         return data[boardname]
+        
     def get_anzeige(self):
         self.anzeigeschalter = Pin(self.cPins["anzeigeschalter"], Pin.IN,Pin.PULL_DOWN)
         self.anzeigeschalter.irq(
