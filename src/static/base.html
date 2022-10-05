@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="/css/base.css">
+    <!-- <link rel="stylesheet" href="base.css"> -->
+    <meta name="viewport" , height="device-height" , width="device-width" , initial-scale="1.0" , user-scalable="yes">
+    <!-- <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
+</head>
+<header>
+    <ul>
+        <li><a href="/">Startseite</a></li>
+        <li><a id="showventilQueue" href="javascript:void(0)">Ventilqueue</a></li>
+        <li><a id="neueMessung" href="javascript:void(0)">Neue Messung</a></li>
+        <li class="dropdown">
+            <a href="javascript:void(0)" class="dropbtn">Configs</a>
+            <div class="dropdown-content">
+                <a id="showespConfig" href="javascript:void(0)">ESP-Config</a>
+                <a id="showpinConfig" href="javascript:void(0)">Pin-Config</a>
+                <a id="shownetzwerk" href="javascript:void(0)">Netzwerk</a>
+            </div>
+        </li>
+    </ul>
+    <Title>Emi-Koffer</Title>
+</header>
+
+<body>
+    <br>
+    <h1>&hearts; Emissionskoffer &spades;</h1>
+    <br>
+    <div id="datensätze"><br>
+    </div>
+
+    <div id=relaydiv>
+        <label id="neueMessung">Weitere Messung ?</label>
+        <form id="relayform" action="/neueMessung" method="post">
+            <label for="Parameter">Parmameter (optional)</label>
+            <select id="Parameter" name="parameter">
+                <option value="">Default</option>
+                <!-- will be inserted via javascript -->
+            </select>
+            <label for="Ventil">Ventil*</label>
+            <select id="Ventil" name="ventil" required>
+                <!-- will be inserted via javascript -->
+                <option value=""></option>
+            </select>
+            <label for="dauer">Dauer (min)</label>
+            <input type="number" name="dauer" value=30 id="dauer">
+            <label for="Startzeit">Startzeit</label>
+            <input type="time" name="time" id="Startzeit">
+            <button value="submit">Hinzufügen</button>
+            <label id="pflichtfelder" for="">*Pflichtfelder</label>
+            <br>
+        </form>
+    </div>
+    <div id="ventilQueue"><br></div>
+    <div id="pinConfig"><br></div>
+
+    <div id="espConfig"><br></div>
+    <div id=netzwerk><br></div>
+
+    <div class=footer>
+        {command}<br>
+        Benjamin Kain 09.2022
+    </div>
+
+    <script type="module" src="/js/jsScript.js">    </script>
+    <!-- <script src="/bootstrap/js/bootstrap.bundle.min.js"></script> -->
+</body>
+
+</html>

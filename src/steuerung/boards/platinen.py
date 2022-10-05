@@ -169,6 +169,7 @@ class Board():
     async def collectGarbage(self):
         while True:
             gc.collect()
+            print("Soviele  Bytes sind noch frei: {}".format(gc.mem_free()))
             await asyncio.sleep(15)
 
     async def readSensoren(self):

@@ -25,40 +25,62 @@ class Relay ():
 
 class Ventilqueue():
     l = []
-    lNames = ["Ventil-Name", "Zeitdauer in min","Startzeit"]
-  
-    def __init__(self,board) -> None:
-        self.sommerzeit = board.sommerzeit
+    lNames = ["Parameter","Ventil-Name", "Zeitdauer in min", "Startzeit"]
+    newQ = []
 
-    def set_Startzeit(self,pos):
+    def __init__(self, board) -> None:
+        self.sommerzeit = board.sommerzeit
+        self.board = board
+
+    async def newData(self):
+        while True:
+            while self.postmethod.data:
+                req = ((self.postmethod.data.pop(0)))
+                self.add(req["ventil"], parameter=req["parameter"],
+                         dauer=int(req["dauer"]), startzeit= req["time"])
+            print("nomore in queue" )
+            print(self.l)
+            await asyncio.sleep(5)
+
+    def set_Startzeit(self, pos):
         if self.sommerzeit:
             summertime = 3600
         else:
             summertime = 0
-        zeit,j = 0,0
+        zeit, j = 0, 0
         for i in self.l:
             if j == pos:
                 print("verzögerung ", zeit)
                 break
-            zeit += i[1]
-            j+=1
-        
+            print(i[2])
+            zeit += i[2]
+            j += 1
+
         startzeit = list(utime.localtime(
             utime.mktime(utime.localtime()) + 3600+summertime))
         minute = round((startzeit[4]+zeit) % 60)
-        if minute <10:
+        if minute < 10:
             minute = "0{}".format(minute)
         else:
             minute = "{}".format(minute)
 
         extrastunden = (startzeit[4]+zeit) // 60
         stunde = round((startzeit[3]+extrastunden) % 24)
-        return stunde,minute
+        return stunde, minute
 
-    def add(self, ventil, dauer=30):
-        stunde,minute = self.set_Startzeit(len(self.l))
-        print("Startzeit {}:{}".format(stunde,minute))
-        self.l.append([ventil.__name__(), dauer,"{}:{}".format(stunde,minute)])
+    def add(self, ventil, dauer=30,parameter ="default",startzeit = ""):
+        stunde, minute = self.set_Startzeit(len(self.l))
+        print("Startzeit {}:{}".format(stunde, minute))
+        print(type(ventil))
+        if type(ventil) == type(str()):
+            for vent in self.board.ventile:
+                print(vent)
+                if vent.__name__() == ventil:
+                    print("ISt ventil ",vent)
+                    ventil = vent
+        print(type(ventil))
+        self.l.append([parameter, ventil, dauer,
+                      "{}:{}".format(stunde, minute)])
 
     async def hinzufügen(self, ventil, dauer=30):
         while True:
@@ -93,6 +115,7 @@ class Steuersetup():
             return (n[0], n[1], n[2], 0, n[3], n[4], n[5], 0)
         except:
             pass
+
 
 class Oledanzeige():
     @classmethod
@@ -202,7 +225,7 @@ class HTML_response ():
             dictitems = {}
             for k in config:
                 dictitems[k] = config[k]
-                
+
             table = self.create_table(
                 dictitems.items(), üsliste=["Name", "Wert"])
 

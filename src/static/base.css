@@ -1,0 +1,157 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}  
+/*   aus dem Internet, da unterschiedliche Browser unterschiedliche Formatierenn */
+
+
+body,h1 {
+
+    color: #4a132e;
+    line-height: 3vh;
+    background-color: #4db44d;
+    text-align: center;
+    
+}
+h1 {
+    font-size: 8vh;
+}
+body{
+        font-size: 4vh;
+    color:  black   ;
+}
+table {
+    width: 100%;
+    border: 0.2vh solid black;
+    border-collapse: collapse;
+    line-height: 8vh;
+}
+td,
+th {
+    border: 0.2vh solid black;
+    border-collapse: collapse;
+    padding: 1vh;
+    font-size: 4vh;
+    height: 8vh;
+    background-color: #1f9a27;
+    min-width: 20vh;
+}
+
+ul {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    list-style-type: none;
+    margin: 0;
+    padding-bottom: 1vh;
+    padding-top: 1vh;
+    background-color: #1f9a27;
+
+}
+
+.dropbtn {
+    /* display: block; */
+    /* padding-bottom: 1vh; */
+}
+
+li.dropdown {
+    /* display: inline-block; */
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 4.6vh;
+    background-color: #1f9a27;
+    padding-top:1vh;
+    margin:auto;
+}
+
+.dropdown-content a {
+    padding-bottom: 1vh;
+    padding-top: 1vh;
+    text-decoration: underline;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {
+    background-color: #7d2323;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+li {
+    text-align: left;
+    /* border: 2px  solid #555; */
+    height: 3vh;
+    /* min-height: 3vh; */
+    min-width: 15vw;
+    display: inline-block;
+    width: auto;
+   }
+
+li a:active {
+    background-color: #04AA6D;
+    color: rgb(153, 36, 36);
+}
+
+li a {
+    /* padding: 5px; */
+    text-decoration: underline;
+    min-height: 3vh;
+}
+
+li a:hover {
+    color: #0ff;
+    background-color: rgb(110, 41, 41);
+}
+
+label,input,select,option,button{
+    text-align: center;
+    align-items: center;
+    width: 100vw;
+
+    height: 8vh;
+    background-color: #1f9a27;
+    font-size: 4vh;
+    border: 0.2vh solid black;
+    /* border: none; */
+    border-collapse: collapse;
+    display: inline-flex;
+    /* padding: 1px; */
+}
+form{
+    background-color: #1f9a27;
+}
+
+#relaydiv  form label,input,option,select{
+    width: 49%;
+    border: none;
+    padding: 0%;
+    text-align: left;
+}
+#relaydiv #pflichtfelder {
+    width: 100vw;
+    font-size: 2vh;
+    height: auto;
+}
+
+#neueMessung {
+    text-align: center; /* doesnt work*/
+    font-size: 4vh;
+}
+/* #relaydiv {
+    width: auto;
+    height: auto;
+} */
+
+div.footer {
+    color: #7d7db6;
+    font-size: 2vh;
+    font-style: italic;
+    line-height: 3vh;
+}

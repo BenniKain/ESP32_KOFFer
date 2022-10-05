@@ -4,6 +4,10 @@ In Ordner
 command 
 make
 
+unter folgendem namen ist die firmware zu finden
+\\wsl$\Ubuntu\home\benjamin\esp\micropython\ports\esp32\build-GENERIC\firmware.bin 
+vermutlich falsch
+
 in folgenden ordner die library files für bytecode reinkopieren
 \\wsl$\Ubuntu\home\benjamin\esp\micropython\ports\esp32\modules
 man kan auch ordner reinkopieren

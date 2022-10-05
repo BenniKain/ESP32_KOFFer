@@ -1,4 +1,5 @@
 from .steuerung.hostserver import app as hostserver
+from .steuerung.hostserver import POST_Method as PM
 from .libraries.wifi_manager import  WifiManager
 from .steuerung.methoden import Steuersetup,Ventilqueue
 import uasyncio as asyncio
@@ -21,6 +22,8 @@ class App():
         self.vq = Ventilqueue(self.board)
         self.wifimngr = WifiManager()
         self.board.set_time()
+        self.vq.postmethod = PM()
+
 
     def run(self) -> None:
         
@@ -28,11 +31,12 @@ class App():
             loop = asyncio.get_event_loop()
 
             loop.create_task(self.wifimngr.manage())
-            #loop.create_task(self.board.waagenanzeige()) 
-            self.vq.add(self.board.ventil1,dauer=50)# sollte über eine html from ausgeführt werden TODO
+            loop.create_task(self.board.collectGarbage())
+            self.vq.add(self.board.ventil1,dauer=10)# sollte über eine html from ausgeführt werden TODO
             # loop.create_task(self.vq.hinzufügen(self.board.ventil1)) #used for testing the queue
-            self.vq.add(self.board.ventil2)
-            #loop.create_task(self.board.queueing(self.vq))
+            loop.create_task(self.board.queueing(self.vq))
+            self.vq.add(self.board.ventil2,dauer =15)
+            loop.create_task(self.vq.newData())
             loop.create_task(self.board.collectGarbage())
             loop.create_task(self.board.readSensoren()) 
             loop.create_task(self.board.updateScreen())
