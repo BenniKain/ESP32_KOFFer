@@ -1,0 +1,39 @@
+{
+    "datenheader":[
+        "Sensor",
+        "Wert"
+    ],    
+    "espHeader": [
+        "Config",
+        "Wert"
+    ],
+    "netzwerkheader": [
+        "Netz-Name", 
+        "Wert"
+    ],
+    "pinheader": [
+        "Sensor",
+        "Pins"
+    ],
+    "ventilheader": [
+        "Parameter",
+        "Ventil",
+        "Dauer (min)",
+        "Startzeit hh:mm"
+    ],
+    "ventilOptions":[
+        "Ventil1",
+        "Ventil2",
+        "Ventil3"
+    ],
+    "parOptions":[
+        "SO2",
+        "HCl",
+        "HF",
+        "Hg",
+        "NH3",
+        "Aldehyde",
+        "Org. Säuren",
+        "Other"
+    ]
+}

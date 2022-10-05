@@ -1,13 +1,14 @@
 from src.steuerung.boards.platinen import Board
 from machine import I2C, Pin, reset, SPI,unique_id
-from src.libraries import *
+from dht import DHT11
+from hx711 import HX711
+from bmp180 import BMP180
+from ssd1306 import SSD1306_I2C
 from dht import DHT11
 import uasyncio as asyncio
 import utime
 import network
 from src.steuerung.methoden import Relay
-
-#from steuerung.methoden import Datenlesen,Steuersetup,Oledanzeige
 
 class ESP_32 (Board):
     def __init__(self, boardname) -> None:
@@ -29,23 +30,28 @@ class ESP_32 (Board):
         import ubinascii
         espID = str(ubinascii.hexlify(unique_id()).decode("utf-8"))
         self.datenDict.update({"espID": espID})
+        self.completeDict.update({"espID": espID})
         #print("ID des ESP's: ", espID)
         return espID
 
     async def queueing (self,vq):
         while True:
             try:
-                
-                while vq.l:
+                while vq.board.ventilqueueList:
                     self.pumpenrelay.an()
-                    par,vent,dauer,startzeit = vq.l.pop(0)
-                    print("Printing: ",par, vent, dauer)
-                    vent.an()
+                    par,ventil,dauer,startzeit = vq.l.pop(0)
+                    for vent in self.ventile:
+                        if vent.__name__() == ventil:
+                            print("ISt ventil ", vent)
+                            ventil = vent
+    
+                    print("Printing: ",par, ventil, dauer)
+                    ventil.an()
                     await asyncio.sleep(dauer)
-                    vent.aus()
+                    ventil.aus()
                 print("No more measuerements in queue")
                 self.pumpenrelay.aus()
             except Exception as e:
-                print(e)
+                print("Fehler in queueing; ",e)
             await asyncio.sleep(2)
    

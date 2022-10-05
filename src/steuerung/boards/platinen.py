@@ -3,18 +3,22 @@ import machine
 import utime
 import network
 from dht import DHT11
-from src.libraries import *
+from hx711 import HX711
+from bmp180 import BMP180
+from ssd1306 import SSD1306_I2C
 from src.steuerung.methoden import Datenlesen, Steuersetup, Oledanzeige, Relay
 import uasyncio as asyncio
 import gc
-
+import ujson as json
 
 class Board():
     
-    esp_config_file = "espconfig.json"
+    config_dir = "src/static/configs/"
+    network_file = '/src/static/configs/networks.json'
+    completeDict = {"STA_Name":"--","STA_IP":"--"}
     datenDict = {"temp": "--", "hum": "--",
-                  "tBMP": "--", "alt": "--", "press": "--",
-                  "STA_Name":"--","STA_IP":"--"}
+                  "tBMP": "--", "press": "--",}
+    ventilqueueList = []
     logfile = "/loggingdata/loggingfiles.txt"
     kofferDict = {}
     screenfeld = 1  # für bildschirme zum iterieren von anzeigen
@@ -31,10 +35,25 @@ class Board():
         #self.pumpentaster = Pin(self.cPins["pumpentaster"], Pin.IN)
         self.dht11 = DHT11(Pin(self.cPins["dht11"]))  # inits DHT sensor
         self.get_anzeige()
-        self.start_HX711()
+        #self.start_HX711()
         self.start_BMP()
         self.start_OLED()
 
+    async def updateJSON(self):
+        while True:
+            datenfile = self.config_dir+"data.json"
+            with open(datenfile, "w") as jsonfile:
+                json.dump(self.datenDict, jsonfile)
+            
+            ventilqueue = self.config_dir+"ventilqueue.json"
+            jsfile = {"ventilqueue": self.ventilqueueList}
+            with open(ventilqueue, "w") as jsonfile:
+                json.dump(jsfile, jsonfile)
+
+            print("updated")
+            print(jsfile)
+            await asyncio.sleep(2)
+            
     def set_time(self):
         try:
             import ntptime
@@ -46,17 +65,23 @@ class Board():
             pass
 
     def get_ESP_Config(self):
-        import ujson as json
-        config_file = "src/espconfig.json"
+        config_file = self.config_dir+"espconfig.json"
         with open(config_file, "r") as jsonfile:
             data = json.loads(jsonfile.read())
         for knownesp in data["known_ESP"]:
             if knownesp["espID"] == self.get_espID:
                 return knownesp
 
+        data["known_ESP"].append({"espID": self.get_espID, "espType": "esp32",
+                                  "name": "Default_Koffer",
+                                  "mode": "Koffer",
+                                  "sommerzeit": "True"})
+        with open(config_file, "w") as jsonfile:
+            json.dump(data,jsonfile)
+        return self.get_ESP_Config()
+
     def get_config(self, boardname):
-        import ujson as json
-        config_file = "src/steuerung/boardConfs.json"
+        config_file = self.config_dir+"boardConfs.json"
         with open(config_file, "r") as jsonfile:
             data = json.loads(jsonfile.read())
         return data[boardname]
@@ -114,7 +139,7 @@ class Board():
         else:
             STA_IP, STA_Name = "--", "--"
 
-        self.datenDict.update({"STA_IP": STA_IP, "STA_Name": STA_Name})
+        self.completeDict.update({"STA_IP": STA_IP, "STA_Name": STA_Name})
         return STA_IP, STA_Name
 
     @property
@@ -126,15 +151,15 @@ class Board():
         else:
             AP_IP, AP_Name = "--", "--"
 
-        self.datenDict.update({"AP_IP": AP_IP, "AP_Name": AP_Name})
+        self.completeDict.update({"AP_IP": AP_IP, "AP_Name": AP_Name})
         return AP_IP, AP_Name
 
     async def updateIPs(self):
         while True:
             self.get_STA
             self.get_AP
-            for k in sorted(self.datenDict):
-                print("{} = {}|".format(k, self.datenDict[k]), end="\t")
+            for k in sorted(self.completeDict):
+                print("{} = {}|".format(k, self.completeDict[k]), end="\t")
             print("", end="\n")
             await asyncio.sleep(5)
 
@@ -177,10 +202,10 @@ class Board():
             temp, hum = Datenlesen.read_DHT_data(self.dht11)
             self.datenDict.update({"temp": temp, "hum": hum})
 
-            tBMP, press, alt = Datenlesen.read_BMP_Data(self.bmp180)
+            tBMP, press = Datenlesen.read_BMP_Data(self.bmp180)
             if tBMP == "--":
                 self.start_BMP()
-            self.datenDict.update({"tBMP": tBMP, "alt": alt, "press": press})
+            self.datenDict.update({"tBMP": tBMP, "press": press})
             await asyncio.sleep(2)
 
     async def updateScreen(self):
@@ -192,7 +217,7 @@ class Board():
                 elif self.screenfeld == 2:
                     Oledanzeige.showWaage(self.oled, self.hx711)
                 elif self.screenfeld == 3:
-                    Oledanzeige.showIP(self.oled, self.datenDict)
+                    Oledanzeige.showIP(self.oled,  self.completeDict)
                 self.oled.text("Seite: {}".format(self.screenfeld), 0, 56, 1)
                 self.oled.show()
 

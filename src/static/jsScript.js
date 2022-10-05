@@ -1,20 +1,17 @@
+import datajson from '/json/data.json' assert {type: 'json'};
 import espjson from '/json/espconfig.json' assert {type: 'json'};
 import networksjson from '/json/networks.json' assert {type: 'json'};
 import boardconfjson from '/json/boardConfs.json' assert {type: 'json'};
+import ventilqueuejson from '/json/ventilqueue.json' assert {type: 'json'};
+import headersjson from '/json/headers.json' assert {type: 'json'};
+
+
 let espDict = espjson["known_ESP"];
-
-let espHeaders = ["Config", "Wert"];
-let relayOptions = ["Ventil1", "Ventil2", "Ventil3"]
-let parOptions = ["SO2", "HCl", "HF", "Hg", "NH3", "Aldehyde", "Org. Säuren", "Other"]
+let dataDict = datajson 
 let networkDict = networksjson["known_networks"];
-let networkheader = ["Netz-Name", "Wert"];
 let pinsDict = boardconfjson["esp32"];
-let pinsheader = ["Sensor", "Pins"]
-let ventillqueue = [["So2", "ventil1", "30", "13:40"], ["HF", "ventil2", "20", "14:10"], ["Default", "ventil3", "30", "15:40"]]
-let ventilheader = ["Parameter", "Ventil", "Dauer (min)", "Startzeit hh:mm"]
+let ventilqueue = ventilqueuejson["ventilqueue"]
 
-// console.log (espjson["known_ESP"][1])
-// console.log(networksjson["known_networks"][1])
 class relForm {
     constructor(paroptions, relayoptions) {
         this.container = document.getElementById("relaydiv")
@@ -142,13 +139,10 @@ class Tabelle {
     }
 }
 
-console.log(espDict[0])
-let esp = new Tabelle(espDict[0], espHeaders, "espConfig") //[0] muss noch übergeben werden
-let ventil = new Tabelle(ventillqueue, ventilheader, "ventilQueue") //[0] muss noch übergeben werden
-console.log(pinsDict)
-let pins = new Tabelle(pinsDict["Pins"], pinsheader, "pinConfig") //[0] muss noch übergeben werden
-console.log(networkDict[0])
-let daten = new Tabelle(networkDict[0], networkheader, "netzwerk") //[0] muss noch übergeben werden
-
-let relaform = new relForm(parOptions, relayOptions)
-relaform.show()
+let esp = new Tabelle(espDict[3], headersjson["espHeader"], "espConfig") //[0] muss noch übergeben werden
+let ventil = new Tabelle(ventilqueue, headersjson["ventilheader"], "ventilQueue") //[0] muss noch übergeben werden
+let pins = new Tabelle(pinsDict["Pins"], headersjson["pinheader"], "pinConfig") //[0] muss noch übergeben werden
+let netzwerk = new Tabelle(networkDict[0], headersjson["netzwerkheader"], "netzwerk") //[0] muss noch übergeben werden
+let daten = new Tabelle(dataDict, headersjson["datenheader"], "daten") //[0] muss noch übergeben werden
+daten.show()
+let relayform = new relForm(headersjson["parOptions"], headersjson["ventilOptions"])

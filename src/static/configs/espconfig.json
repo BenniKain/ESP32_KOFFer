@@ -1,0 +1,32 @@
+{
+	"known_ESP": [
+		{
+			"name": "Default_Koffer",
+			"mode": "Koffer",
+			"espID": "1234567890",
+			"sommerzeit": "True",
+			"espType": "esp8266"
+		},
+		{
+			"name": "Default_Koffer",
+			"mode": "Koffer",
+			"espID": "1458280",
+			"sommerzeit": "True",
+			"espType": "esp8266"
+		},
+		{
+			"name": "Default_Koffer",
+			"mode": "Koffer",
+			"espID": "30c6f7055ce4",
+			"sommerzeit": "True",
+			"espType": "esp32"
+		},
+		{
+			"espID": "409151beeed0",
+			"espType": "esp32",
+			"mode": "Koffer",
+			"sommerzeit": "True",
+			"name": "Default_Koffer"
+		}
+	]
+}

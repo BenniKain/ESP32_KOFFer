@@ -24,9 +24,7 @@ class Relay ():
 
 
 class Ventilqueue():
-    l = []
     lNames = ["Parameter","Ventil-Name", "Zeitdauer in min", "Startzeit"]
-    newQ = []
 
     def __init__(self, board) -> None:
         self.sommerzeit = board.sommerzeit
@@ -39,7 +37,8 @@ class Ventilqueue():
                 self.add(req["ventil"], parameter=req["parameter"],
                          dauer=int(req["dauer"]), startzeit= req["time"])
             print("nomore in queue" )
-            print(self.l)
+            print(self.board.ventilqueueList)
+
             await asyncio.sleep(5)
 
     def set_Startzeit(self, pos):
@@ -48,7 +47,7 @@ class Ventilqueue():
         else:
             summertime = 0
         zeit, j = 0, 0
-        for i in self.l:
+        for i in self.board.ventilqueueList:
             if j == pos:
                 print("verzögerung ", zeit)
                 break
@@ -69,26 +68,13 @@ class Ventilqueue():
         return stunde, minute
 
     def add(self, ventil, dauer=30,parameter ="default",startzeit = ""):
-        stunde, minute = self.set_Startzeit(len(self.l))
+        stunde, minute = self.set_Startzeit(len(self.board.ventilqueueList))
         print("Startzeit {}:{}".format(stunde, minute))
-        print(type(ventil))
-        if type(ventil) == type(str()):
-            for vent in self.board.ventile:
-                print(vent)
-                if vent.__name__() == ventil:
-                    print("ISt ventil ",vent)
-                    ventil = vent
-        print(type(ventil))
-        self.l.append([parameter, ventil, dauer,
+        self.board.ventilqueueList.append([parameter, ventil, dauer,
                       "{}:{}".format(stunde, minute)])
 
-    async def hinzufügen(self, ventil, dauer=30):
-        while True:
-            self.add((ventil, dauer))
-            await asyncio.sleep(dauer)
-
     def __call__(self, *args: Any, **kwds: Any) -> Any:
-        return self.l
+        return self.board.ventilqueueList
 
 
 class Steuersetup():
@@ -139,12 +125,12 @@ class Oledanzeige():
         oled.text(datenDict["tBMP"], 128-len(datenDict["tBMP"])*9, 42, 1)
 
     @classmethod
-    def showIP(cls, oled, datenDict):
+    def showIP(cls, oled, completeDict):
         oled.text('WiFi Name:', 0, 0, 1)
-        oled.text(datenDict["STA_Name"], 128 -
-                  len(datenDict["STA_Name"])*9, 14, 1)
+        oled.text(completeDict["STA_Name"], 128 -
+                  len(completeDict["STA_Name"])*9, 14, 1)
         oled.text('WiFi IP:', 0, 28, 1)
-        oled.text(datenDict["STA_IP"], 128-len(datenDict["STA_IP"])*9, 42, 1)
+        oled.text(completeDict["STA_IP"], 128-len(completeDict["STA_IP"])*9, 42, 1)
 
 
 class Datenlesen ():
@@ -166,19 +152,19 @@ class Datenlesen ():
         try:
             tBMP = str(round(bmp180.temperature, 1))
             press = str(int(bmp180.pressure / 100))  # in Pa, mit /100 in hPa
-            alt = str(round(bmp180.altitude / 100, 0))
+
 
         except Exception as e:
             print("Failed to read BMP Sensor: ", e)
-            tBMP, press, alt = "--", "--", "--"
+            tBMP, press, = "--", "--"
         finally:
-            return tBMP, press, alt
+            return tBMP, press
 
     def save_new_Wifi(self, **args):
         # wird nicht wahr trotz handy wlan testeingabe
         if self.connect_Wifi(args["ssid"], args["password"]):
-            import json
-            config_file = "/networks.json"
+            import ujson as json
+            config_file = "/src/static/config/networks.json"
             with open(config_file, "r") as f:  # liest json und speichert in var
                 config = json.loads(f.read())
             # erweitert known networks Dict
@@ -192,67 +178,3 @@ class Datenlesen ():
             print("Netzwerk aufgenommen: ", args["ssid"])
             return "W-Lan verbunden und gespeichert"
         return "Fehler bei verbinden des W-Lans!"
-
-
-class HTML_response ():
-    def __init__(self, f) -> None:
-        self.get_htmlfile(f)
-
-    def get_htmlfile(self, f):
-        myfile = open(f, "r")
-        self.htmlstring = ""
-        for line in myfile.readlines():
-            self.htmlstring += line
-        myfile.close()
-
-    def build_table(self, tabelle):
-        from main import k as koffer
-        if tabelle == "Anzeige":
-            table = self.create_table(
-                koffer.board.datenDict.items(), üsliste=["Name", "Wert"])
-
-        elif tabelle == "Config":
-            config = koffer.board.get_config(koffer.boardname)
-            dictitems = {}
-            for k in config:
-                for configKey in config[k]:
-                    dictitems[configKey] = config[k][configKey]
-            table = self.create_table(
-                dictitems.items(), üsliste=["Name", "Wert"])
-
-        elif tabelle == "ESPConfig":
-            config = koffer.board.get_ESP_Config()
-            dictitems = {}
-            for k in config:
-                dictitems[k] = config[k]
-
-            table = self.create_table(
-                dictitems.items(), üsliste=["Name", "Wert"])
-
-        elif tabelle == "Ventilqueue":
-            table = self.create_table(koffer.vq.l, üsliste=koffer.vq.lNames)
-
-        else:
-            table = "Placeholder"
-        return table
-
-    def create_table(self, datendict, üsliste=""):
-        table = "<table>"
-        table += self.build_tab_überschrift(üsliste)
-        for data in datendict:
-            table += "<tr>"
-            for row in data:
-                table += "<td>{}</td>".format(row)
-            table += "</>"
-        table += "</table>"
-        return table
-
-    def build_tab_überschrift(self, überschriftlist):
-        table = "<tr>"
-        for i in überschriftlist:
-            table += "<th>{}</th>".format(i)
-        table += "</tr>"
-        return table
-
-    def get_kwargs(self, **kwargs):
-        return self.htmlstring.format(**kwargs)
