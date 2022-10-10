@@ -11,12 +11,13 @@ import network
 from src.steuerung.methoden import Relay
 
 class ESP_32 (Board):
-    def __init__(self, boardname) -> None:
+    def __init__(self,) -> None:
+        boardname = "esp32"
         super().__init__(boardname)      
         
-        self.ventil1 = Relay(self.cPins["ventil1"], name="Ventil1")
-        self.ventil2 = Relay(self.cPins["ventil2"], name="Ventil2")
-        self.ventil3 = Relay(self.cPins["ventil3"], name="Ventil3")
+        self.ventil2 = Relay(self.configPins["ventil2"], name="Ventil2")
+        self.ventil3 = Relay(self.configPins["ventil3"], name="Ventil3")
+        self.ventil1 = Relay(self.configPins["ventil1"], name="Ventil1")
         self.ventile = [self.ventil1, self.ventil2, self.ventil3]
         #ds = DS1307(i2c)
         """
@@ -39,19 +40,21 @@ class ESP_32 (Board):
             try:
                 while vq.board.ventilqueueList:
                     self.pumpenrelay.an()
-                    par,ventil,dauer,startzeit = vq.l.pop(0)
+                    par, ventil, dauer, startzeit = vq.board.ventilqueueList[0]
                     for vent in self.ventile:
                         if vent.__name__() == ventil:
-                            print("ISt ventil ", vent)
                             ventil = vent
     
-                    print("Printing: ",par, ventil, dauer)
+                    print("Starte Messung des Parameter{} am {} für die nächsten {} min.".format(par, ventil, dauer))
                     ventil.an()
-                    await asyncio.sleep(dauer)
+                    
+                    await asyncio.sleep(dauer*60)
                     ventil.aus()
-                print("No more measuerements in queue")
+                    vq.board.ventilqueueList.pop(0)
+
+                #print("No more measuerements in queue")
                 self.pumpenrelay.aus()
             except Exception as e:
+                
                 print("Fehler in queueing; ",e)
-            await asyncio.sleep(2)
-   
+            await asyncio.sleep(.1)  

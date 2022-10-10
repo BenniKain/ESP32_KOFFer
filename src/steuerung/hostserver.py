@@ -6,7 +6,6 @@ MIT license
 
 import uasyncio as asyncio
 import tinyweb
-from src.steuerung.methoden import HTML_response
 
 # Create web server application
 app = tinyweb.webserver()
@@ -19,10 +18,11 @@ class POST_Method:
     def post(cls, data):
         print(data)
         cls.data.append(data)
+        return redirect('/')
         return data
 
 
-app.add_resource(POST_Method, url="/neueMessung")
+app.add_resource(POST_Method, url="/post")
 
 
 # Index page
@@ -54,14 +54,14 @@ async def files_css(req, resp, fn):
 async def files_js(req, resp, fn):
     await resp.send_file(
         "src/static/{}".format(fn),
-        content_type="text/javascript",
+        content_type="text/javascript" ,
     )
 
 @app.route("/json/<fn>")
 async def files_json(req, resp,fn):
     await resp.send_file(
         "src/static/configs/{}".format(fn),
-        content_type="application/json",
+        content_type="application/json", max_age=0,
     )
 
 # for bootstrap css files

@@ -1,0 +1,4 @@
+{"defaultConfig":["boardconfig.json",
+        "espconfig.json",
+        "headers.json",
+        "networks.json"]}

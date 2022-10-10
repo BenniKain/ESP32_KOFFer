@@ -2,72 +2,121 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="/css/base.css">
-    <!-- <link rel="stylesheet" href="base.css"> -->
     <meta name="viewport" , height="device-height" , width="device-width" , initial-scale="1.0" , user-scalable="yes">
-    <!-- <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <header>
-    <ul>
-        <li><a href="/">Startseite</a></li>
-        <li><a id="showdaten" >Daten</a></li>
-        <li><a id="showventilQueue" href="javascript:void(0)">Ventilqueue</a></li>
-        <li><a id="neueMessung" href="javascript:void(0)">Neue Messung</a></li>
-        <li class="dropdown">
-            <a href="javascript:void(0)" class="dropbtn">Configs</a>
-            <div class="dropdown-content">
-                <a id="showespConfig" href="javascript:void(0)">ESP-Config</a>
-                <a id="showpinConfig" href="javascript:void(0)">Pin-Config</a>
-                <a id="shownetzwerk" href="javascript:void(0)">Netzwerk</a>
+    <nav class="navbar fixed-top navbar-expand-lg bg-success">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Navigation</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="showdaten" href="#">Daten</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="showventilQueue" href="#">Messungen</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="showrelayform" href="#">+ Messung</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Configs
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" id="showespConfig" href="#">ESP-Configs</a></li>
+                            <li><a class="dropdown-item" id="showpinConfig" href="#">Board-Configs</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" id="shownetzwerk" href="#">Netzwerk</a></li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
-        </li>
-    </ul>
+        </div>
+    </nav>
     <Title>Emi-Koffer</Title>
 </header>
 
-<body>
-    <br>
-    <h1>&hearts; Emissionskoffer &spades;</h1>
-    <br>
-    <div id="datensätze"><br>
+<body style="margin-top: 70px;">
+
+    <div class="container text-center">
+        <h1>&hearts; Emissionskoffer &spades;</h1>
     </div>
+    <form action="/post" method ="post" class="container-fluid" id="relayform">
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label class="form-label" for="Parameter">Parameter</label>
+                <select id="Parameter" class="form-select" name="parameter">
+                    <option value="">Default</option>
+                    <option value="SO2" selected>SO2</option>
+                    <option value="HCl" selected>HCl</option>
+                    <option value="HF" selected>HF</option>
+                    <option value="Hg" selected>Hg</option>
+                    <option value="NH3" selected>NH3</option>
+                    <option value="Other" selected>Other</option>
+                </select>
+            </div>
+            <div class="form-group col-md-6">
+                <label class="form-label" for="Ventil">Ventil*</label>
+                <select id="Ventil" name="ventil" class="form-select" required>
+                    <option value="" selected>Wähle Ventil...</option>
+                    <option value="Ventil1">Ventil1</option>
+                    <option value="Ventil2">Ventil2</option>
+                    <option value="Ventil3">Ventil3</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label class="form-label" for="dauer">Dauer (min)*</label>
+                <input id="dauer" name="dauer" class="form-control" type="number" value=30>
 
-    <div id=relaydiv>
-        <label id="neueMessung">Weitere Messung ?</label>
-        <form id="relayform" action="/neueMessung" method="post">
-            <label for="Parameter">Parmameter (optional)</label>
-            <select id="Parameter" name="parameter">
-                <option value="">Default</option>
-                <!-- will be inserted via javascript -->
-            </select>
-            <label for="Ventil">Ventil*</label>
-            <select id="Ventil" name="ventil" required>
-                <!-- will be inserted via javascript -->
-                <option value=""></option>
-            </select>
-            <label for="dauer">Dauer (min)</label>
-            <input type="number" name="dauer" value=30 id="dauer">
-            <label for="Startzeit">Startzeit</label>
-            <input type="time" name="time" id="Startzeit">
-            <button value="submit">Hinzufügen</button>
-            <label id="pflichtfelder" for="">*Pflichtfelder</label>
-            <br>
-        </form>
+            </div>
+            <div class="form-group col-md-6">
+                <label class="form-label" for="startzeit">Startzeit (hh:m m)</label>
+                <input id="startzeit" name="time" class="form-control" type="time" value="12:20">
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label class="col-form-label-sm" for="">*Pflichtfelder</label>
+                <button class=" form-control btn btn-outline-success" type="submit">Senden</button>
+            </div>
+        </div>
+    </form>
+    <div class="container">
+        <button class="btn btn-danger">Delete <svg xmlns="http://www.w3.org/2000/svg"
+                class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <line x1="4" y1="7" x2="20" y2="7"></line>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+            </svg></button>
     </div>
-    <div id="daten"><br></div>
-    <div id="ventilQueue"><br></div>
-    <div id="pinConfig"><br></div>
-
-    <div id="espConfig"><br></div>
-    <div id=netzwerk><br></div>
-
-    <div class=footer>
-        {command}<br>
-        Benjamin Kain 09.2022
-    </div>
-
     <script type="module" src="/js/jsScript.js">    </script>
-    <!-- <script src="/bootstrap/js/bootstrap.bundle.min.js"></script> -->
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+  
+
+    <div id="espConfig"></div>
+    <div id="ventilQueue"></div>
+    <div id="pinConfig"></div>
+    <div id="netzwerk"></div>
+    <div id="daten"></div>
 </body>
 
 </html>

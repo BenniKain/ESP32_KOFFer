@@ -15,7 +15,7 @@ class App():
             
         elif self.boardname == "esp8266":
             from .steuerung.boards.esp8266 import ESP8266 as ESP
-        return ESP(self.boardname)
+        return ESP()
 
     def __init__(self) -> None:
         self.board = self.get_Board()
@@ -35,8 +35,8 @@ class App():
             loop.create_task(self.wifimngr.manage())
             loop.create_task(self.board.collectGarbage())
 
-            self.vq.add("ventil1",dauer=10)# sollte über eine html from ausgeführt werden TODO
-            self.vq.add("ventil", dauer=15)
+            self.vq.add("Ventil1",dauer=10)# sollte über eine html from ausgeführt werden TODO
+            self.vq.add("Ventil3", dauer=15)
             loop.create_task(self.board.queueing(self.vq))            
             loop.create_task(self.vq.newData())
             

@@ -1,0 +1,64 @@
+{
+    "esp32": {
+        "Pins": {
+            "dht11": 33,
+            "I2C_scl": 22,
+            "I2C_sda": 21,
+            "pumpenrelay": 19,
+            "pumpentaster": "",
+            "waagenTaste": 4,
+            "hx711_sck": 23,
+            "hx711_dout": 25,
+            "anzeigeschalter": 26,
+            "ventil1": 16,
+            "ventil2": 17,
+            "ventil3": 18
+        },
+        "SENSOREN": {
+            "HX711": {
+                "SCALING_FACTOR": -1861.4,
+                "Gewicht ist": 0,
+                "Gewicht soll": 0
+            },
+            "BMP180": {
+                "T lowVal ist": 0,
+                "T lowVal soll": 0,
+                "T highVal ist": 100,
+                "T highVal soll": 100,
+                "P lowVal ist": 0,
+                "P lowVal soll": 0,
+                "P highVal ist": 1013.25,
+                "P highVal soll": 1013.25
+            },
+            "DHT11": {
+                "T lowVal ist": 0,
+                "T lowVal soll": 0,
+                "T highVal ist": 100,
+                "T highVal soll": 100,
+                "hum lowVal ist": 0,
+                "hum lowVal soll": 0,
+                "hum highVal ist": 100,
+                "hum highVal soll": 100
+            },
+            "DS1307": {
+                "Datum ist": "",
+                "Datum soll": "",
+                "Zeit ist": "",
+                "Zeit soll": ""
+            }
+        }
+    },
+    "esp8266": {
+        "Pins": {
+            "dht11": "D0",
+            "I2C_scl": "D1",
+            "I2C_sda": "D2",
+            "pumpenrelay": "D7",
+            "pumpentaster": "F3",
+            "waagenTaste": "D4",
+            "hx711_sck": "D5",
+            "hx711_dout": "D6",
+            "anzeigeschalter": "D8"
+        }
+    }
+}

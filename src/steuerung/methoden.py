@@ -24,7 +24,6 @@ class Relay ():
 
 
 class Ventilqueue():
-    lNames = ["Parameter","Ventil-Name", "Zeitdauer in min", "Startzeit"]
 
     def __init__(self, board) -> None:
         self.sommerzeit = board.sommerzeit
@@ -36,10 +35,8 @@ class Ventilqueue():
                 req = ((self.postmethod.data.pop(0)))
                 self.add(req["ventil"], parameter=req["parameter"],
                          dauer=int(req["dauer"]), startzeit= req["time"])
-            print("nomore in queue" )
-            print(self.board.ventilqueueList)
-
-            await asyncio.sleep(5)
+            # print(self.board.ventilqueueList)
+            await asyncio.sleep(.1)
 
     def set_Startzeit(self, pos):
         if self.sommerzeit:
@@ -91,22 +88,20 @@ class Steuersetup():
             pumpenstatus = True
         return pumpenstatus
 
-    def set_ds1306Time(cls):
-        try:
-            import ntptime
-            ntptime.settime()  # settime von server Internet
-            # +1 zeitverschiebung    #localtime      year,month,day,hour,minute,second,weekday, yearday
-            n = utime.localtime(utime.mktime(utime.localtime()) + 3600)
-            # datetime ds    year,month,day,weekday,hour,min,second,subsecond
-            return (n[0], n[1], n[2], 0, n[3], n[4], n[5], 0)
-        except:
-            pass
-
-
 class Oledanzeige():
     @classmethod
-    def showWaage(cls, oled, hx711):
-        val = hx711.read()
+    def showWaage(cls, board):
+        oled = board.oled 
+        hx711 = board.hx711
+        if board.hx711Active:
+                val = hx711.read()
+        else:
+            try:
+                board.start_HX711()
+                val = hx711.read()
+            except:
+                val="Error"
+
         oled.text('Waage', 0, 0, 1)
         oled.text("Gewicht in g:", 0, 14)
         # len is 4 trotz . wegen float daher 10 sign lang
@@ -125,12 +120,14 @@ class Oledanzeige():
         oled.text(datenDict["tBMP"], 128-len(datenDict["tBMP"])*9, 42, 1)
 
     @classmethod
-    def showIP(cls, oled, completeDict):
+    def showIP(cls, oled, completeDict,mode):
+        
         oled.text('WiFi Name:', 0, 0, 1)
-        oled.text(completeDict["STA_Name"], 128 -
-                  len(completeDict["STA_Name"])*9, 14, 1)
+        oled.text(completeDict["{}_Name".format(mode)], 128 -
+                  len(completeDict["{}_Name".format(mode)])*9, 14, 1)
         oled.text('WiFi IP:', 0, 28, 1)
-        oled.text(completeDict["STA_IP"], 128-len(completeDict["STA_IP"])*9, 42, 1)
+        oled.text(completeDict["{}_IP".format(mode)],
+                  128-len(completeDict["{}_IP".format(mode)])*9, 42, 1)
 
 
 class Datenlesen ():
@@ -138,8 +135,8 @@ class Datenlesen ():
     def read_DHT_data(cls, dht11):
         try:
             dht11.measure()
-            temp = str(dht11.temperature())
-            hum = str(dht11.humidity())
+            temp = str(dht11.TcalSteigung *dht11.temperature()+dht11.TcalOffset)
+            hum = str(dht11.humcalSteigung *dht11.humidity()+dht11.humcalOffset)
         except Exception as e:
             temp = "--"
             hum = "--"
@@ -150,9 +147,8 @@ class Datenlesen ():
     @classmethod
     def read_BMP_Data(cls, bmp180):
         try:
-            tBMP = str(round(bmp180.temperature, 1))
-            press = str(int(bmp180.pressure / 100))  # in Pa, mit /100 in hPa
-
+            tBMP = str(round(bmp180.TcalSteigung *bmp180.temperature+bmp180.TcalOffset,1))
+            press = str(int(bmp180.pressure *bmp180.pressure()+bmp180.PcalOffset/100))# in Pa, mit /100 in hPa
 
         except Exception as e:
             print("Failed to read BMP Sensor: ", e)

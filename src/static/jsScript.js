@@ -1,9 +1,9 @@
 import datajson from '/json/data.json' assert {type: 'json'};
-import espjson from '/json/espconfig.json' assert {type: 'json'};
-import networksjson from '/json/networks.json' assert {type: 'json'};
-import boardconfjson from '/json/boardConfs.json' assert {type: 'json'};
+import espjson from '/json/customespconfig.json' assert {type: 'json'};
+import networksjson from '/json/customnetworks.json' assert {type: 'json'};
+import boardconfjson from '/json/customboardconfig.json' assert {type: 'json'};
 import ventilqueuejson from '/json/ventilqueue.json' assert {type: 'json'};
-import headersjson from '/json/headers.json' assert {type: 'json'};
+import headersjson from '/json/customheaders.json' assert {type: 'json'};
 
 
 let espDict = espjson["known_ESP"];
@@ -14,14 +14,14 @@ let ventilqueue = ventilqueuejson["ventilqueue"]
 
 class relForm {
     constructor(paroptions, relayoptions) {
-        this.container = document.getElementById("relaydiv")
+        // this.container = document.getElementById("relayform")
         this.form = document.getElementById("relayform")
 
         let parSelect = this.createoptions(paroptions, "Parameter")
         let ventilSelect = this.createoptions(relayoptions, "Ventil")
-        let newMeas = document.getElementById("neueMessung")
+        let newMeas = document.getElementById("showrelayform")
         newMeas.addEventListener("click", this.show)
-        this.container.style.display = "none"
+
         // .appendChild(parOptions)// this.form.addEventListener("click", this.changeZustand)
     }
     createoptions = (optlist, parentID) => {
@@ -34,14 +34,13 @@ class relForm {
             p.id = parentID + " option " + i
             parameter.appendChild(p)
         }
-
     }
     show = () => {
-        if (this.container.style.display == "none") {
-            this.container.style.display = "initial";
+        if (this.form.style.display == "none") {
+            this.form.style.display = "initial";
         }
         else {
-            this.container.style.display = "none";
+            this.form.style.display = "none";
         }
     }
 }
