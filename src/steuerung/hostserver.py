@@ -43,6 +43,7 @@ async def redirect(request, response):
     # Start HTTP response with content-type text/html
     await response.redirect('/')
 
+
 @app.route("/css/<fn>")
 async def files_css(req, resp, fn):
     await resp.send_file(
@@ -50,15 +51,17 @@ async def files_css(req, resp, fn):
         content_type="text/css",
     )
 
+
 @app.route("/js/<fn>")
 async def files_js(req, resp, fn):
     await resp.send_file(
         "src/static/{}".format(fn),
-        content_type="text/javascript" ,
+        content_type="text/javascript",
     )
 
+
 @app.route("/json/<fn>")
-async def files_json(req, resp,fn):
+async def files_json(req, resp, fn):
     await resp.send_file(
         "src/static/configs/{}".format(fn),
         content_type="application/json", max_age=0,
@@ -68,8 +71,9 @@ async def files_json(req, resp,fn):
 @app.route("/bootstrap/css/<fn>")
 async def files_bootstrap_css(req, resp, fn):
     await resp.send_file(
-        "src/static/bootstrap/css/{}".format(fn),
+        "src/static/bootstrap/css/{}.gz".format(fn),
         content_type="text/css",
+        content_encoding="gzip"
     )
 
 
@@ -77,9 +81,12 @@ async def files_bootstrap_css(req, resp, fn):
 @app.route("/bootstrap/js/<fn>")
 async def files_bootstrap_js(req, resp, fn):
     await resp.send_file(
-        "src/static/bootstrap/js/{}".format(fn),
+        "src/static/bootstrap/js/{}.gz".format(fn),
         content_type="text/javascript",
+        content_encoding="gzip",
     )
+
+
 async def run(host='0.0.0.0', loop_forever=True):
     app.run(host=host, port=8081, loop_forever=loop_forever)
 
